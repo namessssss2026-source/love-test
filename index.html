@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全维伴侣价值与长期关系健康度评估量表 (PCVI)</title>
+    <style>
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f7f9fc; color: #333; line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 24px; border-bottom: 2px solid #3498db; padding-bottom: 15px; }
+        .intro { background: #e8f4f8; padding: 15px; border-radius: 8px; margin-bottom: 30px; font-size: 14px; color: #555; }
+        .dimension-title { background: #3498db; color: white; padding: 10px 15px; border-radius: 6px; margin-top: 30px; font-size: 18px; }
+        .question { margin-top: 20px; padding: 15px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; }
+        .question p { font-weight: bold; margin-top: 0; }
+        .options label { display: block; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+        .options label:hover { background: #f0f7ff; border-color: #3498db; }
+        input[type="radio"] { margin-right: 10px; }
+        button { display: block; width: 100%; padding: 15px; margin-top: 40px; background: #2ecc71; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #27ae60; }
+        #result-box { display: none; margin-top: 30px; padding: 20px; border-radius: 8px; border: 2px solid #e74c3c; background: #fff5f5; }
+        .result-title { font-size: 22px; font-weight: bold; color: #c0392b; text-align: center; margin-bottom: 15px; }
+        .score-display { text-align: center; font-size: 30px; color: #e74c3c; font-weight: bold; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>全维伴侣价值与长期关系健康度评估量表 (PCVI)</h1>
+    <div class="intro">
+        <p><strong>理论依据：</strong>社会交换理论、戈特曼婚姻实验室理论、马斯洛需求层次理论。</p>
+        <p><strong>【答题指引】：</strong>请仔细回忆你们相处中的具体细节，选择最符合对方真实日常表现的选项，而不是TA“承诺”或“偶尔”的样子。</p>
+        <p><em>注：本量表共25题，全方位评估生存基石、情感供给、情绪底盘、成长联盟与底线品性。</em></p>
+    </div>
+
+    <form id="quizForm">
+        <div id="questions-container"></div>
+        <button type="button" onclick="calculateScore()">提交问卷并生成诊断报告</button>
+    </form>
+
+    <div id="result-box">
+        <div class="score-display" id="scoreValue"></div>
+        <div class="result-title" id="resultTitle"></div>
+        <div id="resultText"></div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { dim: "维度一：生存基石（现实与物质条件）", q: "1. 对方目前的收入水平与职业前景如何？", options: [
+            { text: "A. 收入丰厚且稳定，在同龄人中属于前列（如高薪、有分红/股权等）。", score: 4 },
+            { text: "B. 收入中等偏上，工作稳定，有清晰的涨薪或晋升空间。", score: 3 },
+            { text: "C. 收入勉强够两人日常开销，但目前缺乏明显的职业规划和上进心。", score: 2 },
+            { text: "D. 收入不稳定/待业，且经常好高骛远或眼高手低。", score: 1 }
+        ]},
+        { dim: "", q: "2. 关于房产、车辆等核心资产，对方的实际情况是：", options: [
+            { text: "A. 已有房/车且无压力，或已准备好充足的首付及还贷能力，明确表示有你的份额或愿意为你提供安全感。", score: 4 },
+            { text: "B. 目前还在积累中，但有明确且可行的买房/买车储蓄计划，两人能共同承担。", score: 3 },
+            { text: "C. 没有房车，且认为“租房也挺好”或指望父母/你来解决。", score: 2 },
+            { text: "D. 不仅没有资产，还有负债（如网贷、消费贷等非良性负债）。", score: 1 }
+        ]},
+        { dim: "", q: "3. 对方的日常消费观和财务习惯是怎样的？", options: [
+            { text: "A. 有清晰的理财规划，量入为出，有储蓄习惯，从不超前盲目消费。", score: 4 },
+            { text: "B. 偶尔冲动消费，但总体在可控范围内，不会影响正常生活。", score: 3 },
+            { text: "C. 典型的“月光族”，赚多少花多少，对未来的抗风险能力极差。", score: 2 },
+            { text: "D. 极度抠门或极度挥霍（经常透支信用卡买奢侈品/游戏道具）。", score: 1 }
+        ]},
+        { dim: "", q: "4. 对方在你身上花钱的态度是：", options: [
+            { text: "A. 非常慷慨，在自己能力范围内总想给你最好的，逢年过节有仪式感。", score: 4 },
+            { text: "B. 比较大方，日常开销不计较，大件物品会和你商量着买。", score: 3 },
+            { text: "C. 算得很清楚，严格AA制，哪怕几十块钱的奶茶也要算账。", score: 2 },
+            { text: "D. 经常向你哭穷，甚至暗示、要求你为TA的高额消费买单。", score: 1 }
+        ]},
+        { dim: "", q: "5. 面对突发的大额支出（如家人生病、意外事故），TA的经济底气是：", options: [
+            { text: "A. 有充足的存款或完善的商业保险，能从容应对。", score: 4 },
+            { text: "B. 有一定的存款，虽会肉痛，但能拿出钱来解决问题。", score: 3 },
+            { text: "C. 几乎没有抗风险能力，遇到大事只能四处借钱。", score: 2 },
+            { text: "D. 不仅没钱，还会因此疯狂抱怨、逃避责任，甚至把压力转移给你。", score: 1 }
+        ]},
+        { dim: "维度二：情感供给（爱与连接）", q: "6. 当你遇到挫折，向TA抱怨工作或生活时，TA的反应通常是：", options: [
+            { text: "A. 放下手机，认真倾听，先安抚你的情绪，再温和地帮你分析。", score: 4 },
+            { text: "B. 会安慰你几句，但很快就会试图转移话题或急于给你“讲道理”。", score: 3 },
+            { text: "C. 显得心不在焉，边看手机边敷衍地“嗯、啊”。", score: 2 },
+            { text: "D. 不耐烦，甚至反过来指责你：“你自己也有问题/天天抱怨烦不烦。”", score: 1 }
+        ]},
+        { dim: "", q: "7. 在日常相处中，TA对你的关注度如何？", options: [
+            { text: "A. 能敏锐察觉你的情绪变化，记得你的喜好和随口说过的话。", score: 4 },
+            { text: "B. 总体比较关心，虽然偶尔粗心，但提醒后会立刻改正并补偿。", score: 3 },
+            { text: "C. 比较自我，通常只关注自己的需求，很少主动关心你的感受。", score: 2 },
+            { text: "D. 对你漠不关心，甚至连你的生日、重要的纪念日都经常忘记。", score: 1 }
+        ]},
+        { dim: "", q: "8. 你们之间的身体接触和亲密互动频率如何？", options: [
+            { text: "A. 经常有牵手、拥抱等日常亲昵动作，亲密生活和谐且互相尊重。", score: 4 },
+            { text: "B. 互动正常，虽然偶尔缺乏激情，但总体让人感到舒适。", score: 3 },
+            { text: "C. 很少有非性目的的身体接触，感觉更像“合租室友”。", score: 2 },
+            { text: "D. 极其抗拒身体接触，或者在亲密关系中极度自私、不顾及你的感受。", score: 1 }
+        ]},
+        { dim: "", q: "9. 当TA的朋友或家人在场时，TA是如何对待你的？", options: [
+            { text: "A. 大方介绍你的身份，照顾你的感受，遇到分歧时坚定地站在你这边。", score: 4 },
+            { text: "B. 表现自然，偶尔可能忽略你，但事后会安抚。", score: 3 },
+            { text: "C. 仿佛换了一个人，对你呼来喝去以彰显TA的“家庭地位”。", score: 2 },
+            { text: "D. 故意隐瞒你们的关系，或者纵容亲友对你评头论足、开不适的玩笑。", score: 1 }
+        ]},
+        { dim: "", q: "10. 当你们异地或不能见面时，TA的联系频率是：", options: [
+            { text: "A. 每天主动分享日常，报备行程，让你充满安全感。", score: 4 },
+            { text: "B. 每天基本会联系，虽然话不多，但能随时找到人。", score: 3 },
+            { text: "C. 经常好几个小时甚至半天不回消息，事后借口“太忙”。", score: 2 },
+            { text: "D. 动不动就玩失踪，甚至断联几天，完全找不到人。", score: 1 }
+        ]},
+        { dim: "维度三：风控与情绪底盘（冲突管理与抗压）", q: "11. 当你们发生激烈争吵时，TA的底线是：", options: [
+            { text: "A. 能够控制音量，不翻旧账，不进行人身攻击，就事论事。", score: 4 },
+            { text: "B. 虽然会生气大吼，但在你表达受伤后会停下来，事后能主动沟通。", score: 3 },
+            { text: "C. 喜欢冷暴力，拒绝沟通，非要等你先低头认错才罢休。", score: 2 },
+            { text: "D. 情绪失控，摔东西、爆粗口，甚至有暴力倾向（推搡、动手）。", score: 1 }
+        ]},
+        { dim: "", q: "12. 吵架后的“修复期”，TA通常怎么做？", options: [
+            { text: "A. 主动找台阶下，不仅道歉，还会复盘问题，提出下次的解决办法。", score: 4 },
+            { text: "B. 会用开玩笑或买小礼物的方式糊弄过去，虽然不深究，但能和好。", score: 3 },
+            { text: "C. 绝不认错，强词夺理，甚至用“抛开事实不谈，难道你就没错吗”来PUA你。", score: 2 },
+            { text: "D. 记仇，把每次吵架都攒在心里，时不时拿出来刺痛你。", score: 1 }
+        ]},
+        { dim: "", q: "13. 当TA自己遇到重大挫折（如失业、被领导痛骂）时：", options: [
+            { text: "A. 允许自己短暂失落，但很快能调整心态，积极寻找出路。", score: 4 },
+            { text: "B. 会向你倒苦水，需要你的安慰，但基本能维持正常生活节奏。", score: 3 },
+            { text: "C. 彻底崩溃，长时间萎靡不振，每天在家唉声叹气、发脾气。", score: 2 },
+            { text: "D. 将失败归咎于外界，甚至通过酗酒、赌博来逃避。", score: 1 }
+        ]},
+        { dim: "", q: "14. TA的情绪基准线（日常情绪状态）是怎样的？", options: [
+            { text: "A. 内核稳定，性格开朗温和，像个小太阳，能给你带来正能量。", score: 4 },
+            { text: "B. 大部分时候情绪平稳，偶尔有小脾气，好哄。", score: 3 },
+            { text: "C. 非常敏感多疑，经常因为一点小事就陷入极度内耗或悲观。", score: 2 },
+            { text: "D. 情绪像过山车，喜怒无常，你在TA身边总是小心翼翼如履薄冰。", score: 1 }
+        ]},
+        { dim: "", q: "15. 面对两人意见不合的重要决策时，TA倾向于：", options: [
+            { text: "A. 充分听取你的意见，权衡利弊，努力寻找双赢的折中方案。", score: 4 },
+            { text: "B. 会试图说服你，但如果你的理由充分，TA愿意妥协。", score: 3 },
+            { text: "C. 表面答应你，背地里却按自己的意思办，擅自做主。", score: 2 },
+            { text: "D. 极端独裁，“必须听我的，否则就分手”。", score: 1 }
+        ]},
+        { dim: "维度四：成长联盟（合作与人生建设）", q: "16. 对于你的事业发展或个人梦想，TA的态度是：", options: [
+            { text: "A. 鼎力支持，甚至愿意为你做出牺牲。", score: 4 },
+            { text: "B. 不干涉，你开心就好，但在你需要时能提供情绪支持。", score: 3 },
+            { text: "C. 觉得你的工作不重要，经常打击你的积极性。", score: 2 },
+            { text: "D. 强烈要求你放弃事业回归家庭，或者见不得你比TA优秀。", score: 1 }
+        ]},
+        { dim: "", q: "17. 日常家务的分配模式是：", options: [
+            { text: "A. 主动承担一半甚至更多，眼里有活，认为家务是共同责任。", score: 4 },
+            { text: "B. 拨一下动一下，你分配任务TA会做，但很少主动干。", score: 3 },
+            { text: "C. 偶尔做一次家务就要到处炫耀或要求夸奖，平时基本当甩手掌柜。", score: 2 },
+            { text: "D. 认为“家务就该是女人/男人的事”，理直气壮地享受你的伺候。", score: 1 }
+        ]},
+        { dim: "", q: "18. 你们对未来生活的蓝图匹配度如何？", options: [
+            { text: "A. 核心价值观高度一致，且有清晰、共同努力的阶段性目标。", score: 4 },
+            { text: "B. 大方向一致，但在一些细节上还在磨合，但不构成根本矛盾。", score: 3 },
+            { text: "C. 很少谈论未来，每次你提起，对方都以“走一步看一步”敷衍。", score: 2 },
+            { text: "D. 核心观念存在不可调和的矛盾，且都不愿让步。", score: 1 }
+        ]},
+        { dim: "", q: "19. 和TA在一起之后，你对自己和生活的整体感觉是：", options: [
+            { text: "A. 变得更自信、更美丽/帅气，觉得世界充满希望，两人在一起是1+1>2。", score: 4 },
+            { text: "B. 没什么太大变化，但生活多了一份安稳和陪伴。", score: 3 },
+            { text: "C. 经常自我怀疑，感觉精力被掏空，变得更加焦虑和疲惫。", score: 2 },
+            { text: "D. 放弃了自我，身材/容貌/精神状态都肉眼可见地变差了。", score: 1 }
+        ]},
+        { dim: "", q: "20. 当你面临提升自己的机会时：", options: [
+            { text: "A. TA会督促并陪伴你一起进步，两人形成良性竞争。", score: 4 },
+            { text: "B. TA不参与，但不反对，愿意给你留出个人时间。", score: 3 },
+            { text: "C. TA觉得你瞎折腾，经常泼冷水冷嘲热讽。", score: 2 },
+            { text: "D. TA充满强烈的控制欲，不准你有自己的圈子，试图将你孤立。", score: 1 }
+        ]},
+        { dim: "维度五：底线与品性（人品与边界感）", q: "21. TA在与异性相处时的“边界感”如何？", options: [
+            { text: "A. 边界感极强，主动与异性保持距离，果断拒绝越界行为并报备。", score: 4 },
+            { text: "B. 有基本的分寸，不会单独与异性约会，社交软件无暧昧信息。", score: 3 },
+            { text: "C. 宣称对方只是“红颜/蓝颜知己”，觉得你吃醋是无理取闹。", score: 2 },
+            { text: "D. 曾有过劈腿、聊骚、嫖娼或使用交友软件寻找猎物的前科。", score: 1 }
+        ]},
+        { dim: "", q: "22. 关于不良嗜好，TA的情况是：", options: [
+            { text: "A. 绝对不沾染任何违法或破坏底线的恶习，生活作风极其健康。", score: 4 },
+            { text: "B. 偶尔抽烟喝酒，但在关键时期能控制或戒掉。", score: 3 },
+            { text: "C. 沉迷于某种极其消耗时间金钱的爱好（如重度氪金游戏、日夜打麻将）。", score: 2 },
+            { text: "D. 沾染黄、赌、毒，或有屡教不改的家暴史。", score: 1 }
+        ]},
+        { dim: "", q: "23. 在遇到需要承担责任的事情时，TA的习惯性反应是：", options: [
+            { text: "A. 敢作敢当，错了就认，第一时间想办法弥补损失。", score: 4 },
+            { text: "B. 虽然第一时间有些退缩或找借口，但最终还是会硬着头皮承担。", score: 3 },
+            { text: "C. 满嘴跑火车，承诺的事情从不兑现，毫无契约精神。", score: 2 },
+            { text: "D. 习惯性撒谎，甩锅给别人，甚至毫无底线地推你出去挡枪。", score: 1 }
+        ]},
+        { dim: "", q: "24. TA与原生家庭（父母）的关系和边界是：", options: [
+            { text: "A. 尊重父母，但经济与人格完全独立。明确“小家庭”利益优先。", score: 4 },
+            { text: "B. 父母偶尔干涉，但TA能在关键时刻护着你，不让你受委屈。", score: 3 },
+            { text: "C. 典型的“妈宝男/女”，凡事听父母的，父母指责你时TA只会在旁边装死。", score: 2 },
+            { text: "D. 原生家庭是无底洞，且TA甘之如饴地被吸血。", score: 1 }
+        ]},
+        { dim: "", q: "25. 观察TA对待弱者（如服务员、快递员、小动物）的态度：", options: [
+            { text: "A. 充满善意，彬彬有礼，懂得换位思考。", score: 4 },
+            { text: "B. 态度平淡，正常对待，没有特殊表现。", score: 3 },
+            { text: "C. 极度精致利己，对有用的人谄媚，对无用的人冷漠。", score: 2 },
+            { text: "D. 充满优越感，经常对底层服务人员大呼小叫，或有虐待倾向。", score: 1 }
+        ]}
+    ];
+
+    const container = document.getElementById('questions-container');
+    questions.forEach((item, index) => {
+        let html = '';
+        if (item.dim) {
+            html += `<div class="dimension-title">${item.dim}</div>`;
+        }
+        html += `<div class="question"><p>${item.q}</p><div class="options">`;
+        item.options.forEach((opt, optIndex) => {
+            html += `<label><input type="radio" name="q${index+1}" value="${opt.score}"> ${opt.text}</label>`;
+        });
+        html += `</div></div>`;
+        container.innerHTML += html;
+    });
+
+    function calculateScore() {
+        let totalScore = 0;
+        let veto = false;
+        let answeredCount = 0;
+
+        for (let i = 1; i <= 25; i++) {
+            const radios = document.getElementsByName('q' + i);
+            let answered = false;
+            for (let radio of radios) {
+                if (radio.checked) {
+                    let score = parseInt(radio.value);
+                    totalScore += score;
+                    answered = true;
+                    // 一票否决逻辑：第21-25题选了D（1分）
+                    if (i >= 21 && i <= 25 && score === 1) {
+                        veto = true;
+                    }
+                    break;
+                }
+            }
+            if (answered) answeredCount++;
+        }
+
+        if (answeredCount < 25) {
+            alert("请回答完所有25道问题后再提交哦！");
+            return;
+        }
+
+        document.getElementById('quizForm').style.display = 'none';
+        const resultBox = document.getElementById('result-box');
+        const scoreValue = document.getElementById('scoreValue');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultText = document.getElementById('resultText');
+        
+        resultBox.style.display = 'block';
+
+        if (veto) {
+            scoreValue.innerText = "🚨 触发一票否决 🚨";
+            resultTitle.innerText = "【高耗损型危险关系】(极度危险，强烈建议止损)";
+            resultText.innerHTML = "<p><strong>【一票否决权警告】：</strong>你在底线与品性维度中选择了触碰底线的选项，这段关系属于“极度危险的劣质资产”，无需计算总分，建议直接启动退出机制。</p><p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！TA在人品底线上全面溃败。TA本身就是你生活中最大的风雨。这段关系正在疯狂吸食你的能量、金钱和青春。</p><p><strong>破局建议：</strong><br>1. 打消圣母情节：你改变不了一个本质上自私、缺乏责任感的人。<br>2. 制定安全撤退计划：保护好自己的人身和财产安全。<br>3. 寻求外部支持：立刻向家人、闺蜜或专业心理咨询师求助，果断离开。</p>";
+            return;
+        }
+
+        scoreValue.innerText = "总分：" + totalScore + " 分";
+
+        if (totalScore >= 90) {
+            resultTitle.innerText = "级别一：【稀缺级人生合伙人】 (完美契合)";
+            resultText.innerHTML = "<p><strong>深度剖析：</strong>恭喜你！你挖到了婚恋市场上的“极品钻石”。TA不仅有坚实的物质基础，还能提供极高的情绪价值。你们不仅是爱人，更是并肩作战的战友。在这段关系中，你们彼此滋养，互相成就。</p><p><strong>维系建议：</strong><br>1. 加大情感投资：双向奔赴才能长久。<br>2. 警惕理所当然：不要因为TA太好而变得肆无忌惮。<br>3. 尽早绑定核心利益：如果还没结婚，可以考虑进入人生的下一阶段了。</p>";
+        } else if (totalScore >= 75) {
+            resultTitle.innerText = "级别二：【优质适配型伴侣】 (状态良好)";
+            resultText.innerHTML = "<p><strong>深度剖析：</strong>TA是一个值得托付的优秀对象。虽然可能在某些细节上不够完美，但TA的底线清晰、人品可靠，且具有极强的成长潜力和向心力。小磕小碰掩盖不了TA真诚爱你的心。</p><p><strong>破局/调整建议：</strong><br>1. 聚焦短板沟通：在双方心情好的时候，把扣分的问题拿出来温和地探讨。<br>2. 建立联合目标：通过共同攒钱等行为，加固“生存基石”。<br>3. 接纳真实的不完美：珍惜身边这个有血有肉、愿意为你付出的普通人。</p>";
+        } else if (totalScore >= 60) {
+            resultTitle.innerText = "级别三：【风险与潜力并存的鸡肋期】 (需要调整)";
+            resultTitle.style.color = "#f39c12";
+            resultText.innerHTML = "<p><strong>深度剖析：</strong>这段关系目前处于“食之无味，弃之可惜”的状态。TA可能在物质或情绪供给上出现了明显的短板。在这段关系里，你的内耗正在增加。TA不是坏人，但绝对不是一个成熟的合伙人。</p><p><strong>破局建议：</strong><br>1. 停止无底线妥协：设定你的底线规则。<br>2. 考察对方的“可塑性”：提出问题后观察TA是努力改变还是敷衍了事。<br>3. 提升自我筹码：把80%的精力收回到自己身上，当你的核心价值提升，才有随时离开的底气。</p>";
+        } else {
+            resultTitle.innerText = "级别四：【高耗损型危险关系】 (极度危险，强烈建议止损)";
+            resultText.innerHTML = "<p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！TA在经济、情绪、人品上全面溃败。TA本身就是你生活中最大的风雨。这段关系正在疯狂吸食你的能量、金钱和青春。</p><p><strong>破局建议：</strong><br>1. 打消圣母情节：你改变不了一个本质上自私、缺乏责任感的人。<br>2. 制定安全撤退计划：慢慢剥离双方的财务纠葛，保护好自己。<br>3. 寻求外部支持：立刻向家人、闺蜜求助，果断离开。</p>";
+        }
+    }
+</script>
+
+</body>
+</html>

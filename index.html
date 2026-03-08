@@ -3,223 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【独家】全维伴侣价值深度透视系统 (女生专属版)</title>
+    <title>全维伴侣价值与长期关系健康度评估量表 (PCVI)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #8a73b6;      /* 高级紫 */
-            --secondary: #d4c4e9;    /* 浅紫 */
-            --accent: #d4af37;       /* 香槟金 */
-            --danger: #e74c3c;
-            --bg: #faf8fc;
-            --text-main: #2c3e50;
+            --primary-color: #d4a373; /* 高级感香槟金/裸色系 */
+            --bg-color: #faf8f5;
+            --text-main: #3d3b38;
+            --accent-blue: #7da2a9;
+            --danger-red: #d9534f;
         }
-        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.6; margin: 0; padding: 15px; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(138, 115, 182, 0.15); }
+        body { font-family: 'PingFang SC', 'Helvetica Neue', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.7; margin: 0; padding: 15px; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+        h1 { text-align: center; color: #2c2a29; font-size: 22px; font-weight: 600; margin-bottom: 10px; }
+        .subtitle { text-align: center; font-size: 13px; color: #888; margin-bottom: 25px; letter-spacing: 1px; }
         
-        h1 { text-align: center; color: var(--primary); font-size: 22px; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #7f8c8d; font-size: 13px; margin-bottom: 25px; letter-spacing: 1px; }
+        /* 锁屏界面样式 (VIP门禁) */
+        #auth-screen { text-align: center; padding: 30px 15px; }
+        .auth-icon { font-size: 48px; margin-bottom: 15px; }
+        .auth-desc { font-size: 14px; color: #666; margin-bottom: 30px; background: #fdfbf7; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary-color); text-align: left;}
+        #unlockCode { width: 100%; box-sizing: border-box; padding: 15px; font-size: 16px; text-align: center; border: 2px solid #eaddcf; border-radius: 8px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; background: #faf8f5; outline: none; transition: 0.3s;}
+        #unlockCode:focus { border-color: var(--primary-color); background: #fff; }
         
-        /* 授权页面 (首页) */
-        #auth-screen { text-align: center; padding: 30px 10px; }
-        .auth-icon { font-size: 50px; margin-bottom: 10px; }
-        .auth-desc { font-size: 14px; color: #666; margin-bottom: 25px; background: var(--bg); padding: 15px; border-radius: 8px; text-align: left; }
-        input[type="text"] { width: 85%; padding: 14px; font-size: 16px; text-align: center; border: 2px solid var(--secondary); border-radius: 8px; margin-bottom: 20px; outline: none; transition: 0.3s; letter-spacing: 1px; }
-        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(138, 115, 182, 0.3); }
-        
-        button { display: block; width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), #6b5294); color: white; border: none; border-radius: 8px; font-size: 17px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(138, 115, 182, 0.4); }
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(138, 115, 182, 0.6); }
+        /* 按钮通用 */
+        button { display: block; width: 100%; padding: 16px; background: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 12px rgba(212, 163, 115, 0.4); }
+        button:hover { background: #bc8a59; transform: translateY(-1px); }
+        button:active { transform: translateY(1px); box-shadow: none; }
 
-        /* 问卷页面 */
-        #quiz-screen { display: none; }
-        .dimension-title { background: var(--secondary); color: #4a3b69; padding: 8px 15px; border-radius: 6px; margin-top: 25px; font-size: 16px; font-weight: bold; border-left: 4px solid var(--primary); }
-        .question { margin-top: 20px; padding: 15px; border: 1px solid #eee; border-radius: 10px; background: #fff; transition: 0.3s; }
-        .question:hover { border-color: var(--secondary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .question p { font-weight: bold; margin-top: 0; font-size: 15px; }
-        .options label { display: block; padding: 12px; margin: 8px 0; border: 1px solid #eaeaea; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 14px; color: #555; }
-        .options label:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); font-weight: bold; }
-        input[type="radio"] { accent-color: var(--primary); margin-right: 10px; transform: scale(1.2); }
+        /* 问卷界面 */
+        #quiz-section { display: none; }
+        .dimension-title { background: #fdfbf7; color: var(--primary-color); padding: 10px 15px; border-radius: 6px; margin-top: 35px; font-size: 16px; font-weight: bold; border: 1px solid #f2e9df; display: flex; align-items: center; }
+        .dimension-title::before { content: "✦"; margin-right: 8px; }
+        .question { margin-top: 20px; }
+        .question p { font-weight: bold; margin-top: 0; font-size: 15px; color: #444; }
+        .options label { display: block; padding: 12px 15px; margin: 8px 0; border: 1px solid #eee; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 14px; background: #fff; }
+        .options label:hover { background: #fcfaf8; border-color: var(--primary-color); }
+        input[type="radio"] { margin-right: 10px; accent-color: var(--primary-color); }
 
-        /* 等待/演算页面 (核心装逼要素) */
-        #loading-screen { display: none; text-align: center; padding: 60px 20px; }
-        .spinner { width: 60px; height: 60px; border: 5px solid var(--secondary); border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        /* 加载界面 */
+        #loading-screen { display: none; text-align: center; padding: 50px 20px; }
+        .spinner { border: 4px solid rgba(0,0,0,0.05); border-left-color: var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loading-text { font-size: 16px; color: var(--primary); font-weight: bold; margin-bottom: 10px; }
-        .loading-subtext { font-size: 13px; color: #999; }
+        .loading-text { font-size: 15px; color: #666; font-weight: bold; margin-bottom: 10px; }
+        .progress-bar { width: 100%; background: #eee; border-radius: 10px; overflow: hidden; height: 8px; margin-top: 20px; }
+        .progress-fill { height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s ease; }
 
-        /* 结果页面 */
-        #result-screen { display: none; }
-        .result-header { text-align: center; padding: 20px; background: linear-gradient(135deg, var(--bg), #fff); border-radius: 12px; border: 1px solid var(--secondary); margin-bottom: 25px; }
-        .score-box { font-size: 40px; color: var(--primary); font-weight: 900; margin-bottom: 5px; font-family: 'Arial Black', sans-serif; }
-        .percentile { display: inline-block; background: var(--accent); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 10px; }
-        .tier-title { font-size: 20px; font-weight: bold; margin-top: 10px; }
+        /* 结果界面 */
+        #result-box { display: none; margin-top: 10px; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .result-header { text-align: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed #eee; }
+        .score-circle { width: 100px; height: 100px; line-height: 100px; border-radius: 50%; background: #fdfbf7; border: 4px solid var(--primary-color); margin: 0 auto 15px; font-size: 32px; font-weight: bold; color: var(--primary-color); }
+        .result-title { font-size: 20px; font-weight: bold; color: #2c2a29; margin-bottom: 10px; }
+        .percentile-box { background: linear-gradient(135deg, #fdfbf7 0%, #fff 100%); padding: 15px; border-radius: 8px; font-size: 14px; border: 1px solid #f2e9df; color: #555; }
+        .percentile-box strong { color: var(--danger-red); font-size: 18px; }
         
-        .chart-wrapper { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .chart-title { text-align: center; font-size: 15px; font-weight: bold; color: var(--text-main); margin-bottom: 10px; }
-        canvas { max-width: 100%; height: auto !important; }
-
-        .analysis-content h3 { color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 5px; margin-top: 25px; font-size: 17px; }
-        .analysis-content p { font-size: 14px; color: #555; margin-bottom: 10px; }
-        .analysis-content ul { padding-left: 20px; font-size: 14px; color: #555; }
-        .analysis-content li { margin-bottom: 8px; }
+        .chart-container { position: relative; width: 100%; margin: 30px auto; }
+        .chart-title { text-align: center; font-size: 14px; font-weight: bold; color: #666; margin-bottom: -10px; }
         
-        .veto-alert { background: #fff0f0; border-left: 4px solid var(--danger); padding: 15px; margin-top: 20px; border-radius: 4px; }
-        .veto-alert h4 { color: var(--danger); margin: 0 0 10px 0; }
+        .result-text { font-size: 14px; line-height: 1.8; color: #444; }
+        .result-text h3 { font-size: 16px; color: var(--primary-color); border-left: 4px solid var(--primary-color); padding-left: 10px; margin-top: 25px; }
+        .highlight { background: rgba(212, 163, 115, 0.15); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #bc8a59; }
+        
+        .watermark { text-align: center; font-size: 12px; color: #ccc; margin-top: 40px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>全维伴侣价值深度透视系统</h1>
-    <div class="subtitle">PCVI 亲密关系实验室 · 女生专属版</div>
+    <h1>伴侣全维深度扫描与底色评估</h1>
+    <div class="subtitle">AI算法引擎 · 独家情感风控模型</div>
 
-    <!-- 1. 授权验证页 (前置) -->
+    <!-- 步骤1：授权门禁 (最前面) -->
     <div id="auth-screen">
-        <div class="auth-icon">💎</div>
+        <div class="auth-icon">🔒</div>
         <div class="auth-desc">
-            <p><strong>🔒 私密评估系统已锁定</strong></p>
-            <p>姐妹你好，本系统结合了行为心理学与社会交换理论，专为女性设计，旨在穿透表象，精准评估“他”的真实长期伴侣价值。</p>
-            <p style="color:#e74c3c; font-size:12px;">* 拒绝恋爱脑，用数据看清本质。测试结果极其真实，可能引起不适，请做好心理准备。</p>
+            <p><strong>【写在前面】：</strong></p>
+            <p>男人的嘴可以骗人，但底层逻辑和沉没成本不会。本测试基于戈特曼婚姻实验室理论及大数据库，帮你精准识别他是<strong>“优质资产”</strong>还是<strong>“负债盲盒”</strong>。</p>
+            <p style="color:#d9534f; font-size: 12px; margin-top:10px;">* 系统已拦截白嫖行为，请输入客服下发的专属密钥激活测评。</p>
         </div>
-        <input type="text" id="unlockCode" placeholder="输入小红书获取的专属授权码">
-        <button type="button" onclick="verifyCode()">激活系统，开始深度评估</button>
+        <input type="text" id="unlockCode" placeholder="请输入24位专属授权密钥">
+        <button type="button" onclick="verifyToken()">验证密钥，开启深度扫描</button>
     </div>
 
-    <!-- 2. 问卷答题页 -->
-    <div id="quiz-screen">
-        <div style="background: var(--bg); padding: 15px; border-radius: 8px; font-size: 13px; color: #666; margin-bottom: 20px;">
-            💡 <strong>答题要诀：</strong>请回忆你们相处中的具体细节。不要选他“画的大饼”，要选他真实的日常表现。
+    <!-- 步骤2：问卷表单 -->
+    <div id="quiz-section">
+        <div class="auth-desc" style="margin-bottom: 20px;">
+            <strong>答题指引：</strong>请放下滤镜，回忆你们相处中的具体细节。选择他<strong>最真实的下意识反应</strong>，而不是他画的饼或偶尔伪装的样子。
         </div>
         <form id="quizForm">
             <div id="questions-container"></div>
-            <button type="button" onclick="submitQuiz()" style="margin-top: 30px;">提交他的数据，生成AI透视报告</button>
+            <button type="button" onclick="startLoading()">提交并生成专属诊断报告</button>
         </form>
     </div>
 
-    <!-- 3. 假装很高科技的加载页 -->
+    <!-- 步骤3：高逼格加载界面 -->
     <div id="loading-screen">
         <div class="spinner"></div>
-        <div class="loading-text" id="loading-txt-1">正在建立人物多维模型...</div>
-        <div class="loading-subtext" id="loading-txt-2">连接全网男性数据样本库 (耗时约几秒)</div>
+        <div class="loading-text" id="loading-msg">正在链接全网男性大数据库...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p style="font-size: 12px; color: #999; margin-top: 15px;">AI正在进行多维度数据交叉比对，请勿关闭页面...</p>
     </div>
 
-    <!-- 4. 豪华结果呈现页 -->
-    <div id="result-screen">
-        <div class="result-header" id="result-header">
-            <div class="score-box" id="scoreValue">95 分</div>
-            <div class="percentile" id="percentileValue">🔥 综合价值超越全国 92% 的男性</div>
-            <div class="tier-title" id="tierTitle">👑 S级：稀缺宝藏人类高质量男性</div>
-        </div>
-        
-        <!-- 图表区：正态分布曲线 (重点装逼要素) -->
-        <div class="chart-wrapper">
-            <div class="chart-title">📍 他在男性大盘中的位置 (高斯分布模型)</div>
-            <canvas id="bellChart"></canvas>
-            <p style="text-align: center; font-size: 12px; color: #999; margin-top: 10px;">(根据中国适龄男性情感与物质基础抽样拟合)</p>
-        </div>
-
-        <!-- 图表区：多维雷达图 -->
-        <div class="chart-wrapper">
-            <div class="chart-title">🕸️ 核心价值能力雷达图</div>
-            <canvas id="radarChart"></canvas>
-        </div>
-
-        <!-- 深度文字解析区 -->
-        <div class="analysis-content" id="analysisContent">
-            <!-- 动态注入内容 -->
-        </div>
-    </div>
-</div>
-
-<script>
-    // 固定的解锁密钥
-    const SECRET_TOKEN = "AQ9X7T4PM2V5L8W3R4N6Y1J0";
-
-    const questions = [
-        { dim: "一、 生存基石（搞钱能力与物质底盘）", q: "1. 他目前的收入水平与职业前景如何？", options: [
-            { text: "A. 收入丰厚且稳定，在同龄人中属于前列（如高管、高薪技术、有分红等）。", score: 4 },
-            { text: "B. 收入中等偏上，工作稳定，有清晰的涨薪或晋升空间。", score: 3 },
-            { text: "C. 收入勉强够日常开销，且目前缺乏明显的职业规划和搞钱欲望。", score: 2 },
-            { text: "D. 收入极其不稳定/待业，且经常好高骛远、眼高手低。", score: 1 }
-        ]},
-        { dim: "", q: "2. 关于房产、车辆等核心资产，他的实际情况是：", options: [
-            { text: "A. 已有房车且无压力，或准备好了充足资金，明确表示愿意为你加名或提供安全感。", score: 4 },
-            { text: "B. 还在积累中，但有清晰可行的储蓄计划，且愿意和你共同建设未来。", score: 3 },
-            { text: "C. 没有资产，且认为“租房也挺好”或理所当然地指望父母/你来解决。", score: 2 },
-            { text: "D. 不仅没资产，还有网贷、消费贷等非良性负债，是个无底洞。", score: 1 }
-        ]},
-        { dim: "", q: "3. 在你身上花钱的态度（大方程度）：", options: [
-            { text: "A. 非常慷慨，在自己能力范围内总想给你最好的，逢年过节仪式感拉满。", score: 4 },
-            { text: "B. 比较大方，日常开销主动承担，买大件物品会和你商量。", score: 3 },
-            { text: "C. 算得很清楚，精打细算，平时基本AA制，舍不得为你花钱。", score: 2 },
-            { text: "D. 经常向你哭穷，甚至暗示、要求你为他的消费买单（俗称“吸血”）。", score: 1 }
-        ]},
-        { dim: "", q: "4. 他的日常消费观和抗风险能力：", options: [
-            { text: "A. 有清晰的理财规划，有充足储蓄，面对家人生病等突发事件能从容应对。", score: 4 },
-            { text: "B. 消费基本理性，有一定的存款，遇到大事虽会肉痛但能拿钱解决。", score: 3 },
-            { text: "C. 典型月光族，没有任何抗风险能力，遇到大事只能四处借钱。", score: 2 },
-            { text: "D. 极度抠门，或者极度挥霍（经常透支买名牌/充游戏），财务观念极差。", score: 1 }
-        ]},
-        { dim: "", q: "5. 他对待自己事业/副业的态度是：", options: [
-            { text: "A. 极其自律，有野心且执行力极强，是个潜力股。", score: 4 },
-            { text: "B. 按部就班，踏实肯干，虽然没有暴富梦但能保证安稳生活。", score: 3 },
-            { text: "C. 佛系躺平，得过且过，下班后只会打游戏刷视频。", score: 2 },
-            { text: "D. 满嘴跑火车，“明天就赚大钱”，但行动上永远是矮子。", score: 1 }
-        ]},
-        { dim: "二、 情绪价值供给（爱与连接）", q: "6. 当你遇到挫折，向他倾诉或抱怨时，他的反应通常是：", options: [
-            { text: "A. 放下手机认真倾听，先接住你的情绪，再温和地帮你分析解决。", score: 4 },
-            { text: "B. 会安慰你几句，但直男思维重，急于给你“讲道理”。", score: 3 },
-            { text: "C. 显得心不在焉，边看手机边敷衍地“嗯、啊”。", score: 2 },
-            { text: "D. 极不耐烦，甚至反过来指责你：“你自己也有问题/天天抱怨烦不烦。”", score: 1 }
-        ]},
-        { dim: "", q: "7. 在日常相处中，他对你的“关注度”：", options: [
-            { text: "A. 细节控，能敏锐察觉你的情绪变化，记得你的喜好和随口说过的话。", score: 4 },
-            { text: "B. 总体关心你，偶尔粗心，但你提醒后他会立刻改正并补偿。", score: 3 },
-            { text: "C. 比较自我，通常只关注自己的需求，很少主动关心你的感受。", score: 2 },
-            { text: "D. 对你漠不关心，甚至连你的生日、重要的纪念日都经常忘记。", score: 1 }
-        ]},
-        { dim: "", q: "8. 当他的朋友或家人在场时，他是如何对待你的？", options: [
-            { text: "A. 大方介绍你，极其护短，遇到分歧时坚定地站在你这边。", score: 4 },
-            { text: "B. 表现自然，偶尔可能跟兄弟聊嗨了忽略你，但事后会安抚。", score: 3 },
-            { text: "C. 仿佛换了个人，对你呼来喝去以彰显他的“家庭地位”和“大男子主义”。", score: 2 },
-            { text: "D. 故意隐瞒你们的关系，或纵容亲友对你评头论足、开黄色玩笑。", score: 1 }
-        ]},
-        { dim: "", q: "9. 你们异地或不能见面时，他的联系频率和安全感供给：", options: [
-            { text: "A. 每天主动分享日常，报备行程，让你充满安全感，事事有回应。", score: 4 },
-            { text: "B. 每天基本会联系，虽然话不多，但你能随时找到他人。", score: 3 },
-            { text: "C. 经常好几个小时甚至半天不回消息，事后借口“太忙”。", score: 2 },
-            { text: "D. 动不动就玩失踪，甚至断联几天，完全找不到人（冷暴力边缘）。", score: 1 }
-        ]},
-        { dim: "", q: "10. 你们的身体接触和亲密互动（非性目的）：", options: [
-            { text: "A. 经常有牵手、摸头、拥抱等日常亲昵动作，满眼都是你。", score: 4 },
-            { text: "B. 互动正常，让人感到舒适安稳。", score: 3 },
-            { text: "C. 很少有非性目的的身体接触，平时感觉像“合租室友”。", score: 2 },
-            { text: "D. 只有在需要解决生理需求时才会靠近你，平时极其冷淡。", score: 1 }
-        ]},
-        { dim: "三、 风控与内核稳定性（冲突管理）", q: "11. 当你们发生激烈争吵时，他的底线是：", options: [
-            { text: "A. 能控制情绪，不翻旧账，不进行人身攻击，就事论事。", score: 4 },
-            { text: "B. 会生气大吼，但在你表达受伤后会停下来，事后能主动沟通。", score: 3 },
-            { text: "C. 擅长冷暴力，拒绝沟通，非要等你先低头认错才罢休。", score: 2 },
-            { text: "D. 情绪失控，摔东西、爆粗口，甚至有暴力倾向（推搡、动手）。", score: 1 }
-        ]},
-        { dim: "", q: "12. 吵架后的“修复期”，他通常怎么做？", options: [
-            { text: "A. 主动找台阶下，不仅道歉，还会复盘问题，提出下次的解决办法。", score: 4 },
-            { text: "B. 会用开玩笑或买小礼物的方式糊弄过去，虽然不深究，但能和好。", score: 3 },
-            { text: "C. 绝不认错，强词夺理，经典语录：“你要这么想我也没办法”。", score: 2 },
-            { text: "D. 极度记仇，把每次吵架都攒在心里，时不时拿出来PUA你。", score: 1 }
-        ]},
-        { dim: "", q: "13. 他自己的情绪基准线（内核是否稳定）：", options: [
-            { text: "A. 内核极度稳定，开朗温和，像个小太阳，能给你带来正能量。", score: 4 },
-            { text: "B. 大部分时候平稳，偶尔有职场压力带来的小脾气，好哄。", score: 3 },
-            { text: "C. 极其敏感多疑，经常因为一点小事陷入内耗，是个“情绪黑洞”。", score: 2 },
-            { text: "D. 喜怒无常，像个火药桶，你在他身边总是小心翼翼如履薄冰。", score: 1 }
-        ]},
-        { dim: "", q: "14. 当他自己遇到重大挫折（如失业、被批评）时：", options: [
-            { text: "A. 允许短暂失落，但很快能调整心态，积极寻找解决出路。", score: 4 },
-            { text: "B. 会向你倒苦水需要安慰，但基本能维持正常生活节奏。", score: 3 },
-            { text: "C. 彻底崩溃，长时间萎靡不振，每天在家唉声叹气发脾气。", score: 2 },
-            { text: "D. 怨天尤人，将失败归咎于外界，甚至通过酗酒、赌博来逃避。", score: 1 }
-        ]},
-        { dim: "", q: "15. 面对两人意见不合的重要决策时，他倾向于：", options: [
-            { text: "A. 充分听取你的意见，权衡利弊，努力寻找双赢的折中方案。", score: 4 },
-            { text: "B. 试图说服你，但如果你的理由充分，他愿意妥协。", score
+    <!-- 步骤4：结果与双图表界面 -->
+    <div id="result-box">
+        <div class="result-header">
+            <div class="score-circle" id="scoreValue">9

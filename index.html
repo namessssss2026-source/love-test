@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>全维伴侣价值与长期关系健康度评估量表 (PCVI)</title>
+    <!-- 引入专业的图表绘制库 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f7f9fc; color: #333; line-height: 1.6; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -15,11 +17,23 @@
         .options label { display: block; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; transition: 0.3s; }
         .options label:hover { background: #f0f7ff; border-color: #3498db; }
         input[type="radio"] { margin-right: 10px; }
+        
         button { display: block; width: 100%; padding: 15px; margin-top: 40px; background: #2ecc71; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background: #27ae60; }
-        #result-box { display: none; margin-top: 30px; padding: 20px; border-radius: 8px; border: 2px solid #e74c3c; background: #fff5f5; }
-        .result-title { font-size: 22px; font-weight: bold; color: #c0392b; text-align: center; margin-bottom: 15px; }
+        
+        /* 锁屏界面样式 */
+        #lock-screen { display: none; margin-top: 30px; padding: 40px 20px; text-align: center; background: #2c3e50; color: white; border-radius: 12px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        #lock-screen h2 { color: #f1c40f; margin-bottom: 10px; }
+        #lock-screen p { margin-bottom: 20px; font-size: 14px; color: #bdc3c7; }
+        #unlockCode { width: 80%; max-width: 400px; padding: 12px; font-size: 16px; text-align: center; border: 2px solid #34495e; border-radius: 6px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        #unlockBtn { background: #f39c12; margin-top: 0; width: 80%; max-width: 400px; margin: 0 auto; }
+        #unlockBtn:hover { background: #e67e22; }
+
+        /* 结果界面样式 */
+        #result-box { display: none; margin-top: 30px; padding: 20px; border-radius: 8px; border: 2px solid #3498db; background: #f0f8ff; }
+        .result-title { font-size: 22px; font-weight: bold; color: #2c3e50; text-align: center; margin-bottom: 15px; }
         .score-display { text-align: center; font-size: 30px; color: #e74c3c; font-weight: bold; margin-bottom: 20px; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin: 30px auto; }
     </style>
 </head>
 <body>
@@ -32,19 +46,38 @@
         <p><em>注：本量表共25题，全方位评估生存基石、情感供给、情绪底盘、成长联盟与底线品性。</em></p>
     </div>
 
+    <!-- 问卷表单 -->
     <form id="quizForm">
         <div id="questions-container"></div>
-        <button type="button" onclick="calculateScore()">提交问卷并生成诊断报告</button>
+        <button type="button" onclick="verifyAndLock()">提交评估报告</button>
     </form>
 
+    <!-- 密码解锁界面 -->
+    <div id="lock-screen">
+        <h2>🔒 报告已生成，等待解密</h2>
+        <p>系统已完成多维数据分析。<br>请输入 24 位专属授权密钥（Token）以查看详细诊断结果及雷达图：</p>
+        <input type="text" id="unlockCode" placeholder="请输入密钥 (如: AQ9X...)">
+        <button type="button" id="unlockBtn" onclick="checkPassword()">验证并解锁报告</button>
+    </div>
+
+    <!-- 结果与雷达图界面 -->
     <div id="result-box">
         <div class="score-display" id="scoreValue"></div>
         <div class="result-title" id="resultTitle"></div>
+        
+        <!-- 雷达图容器 -->
+        <div class="chart-container" id="chart-area">
+            <canvas id="radarChart"></canvas>
+        </div>
+
         <div id="resultText"></div>
     </div>
 </div>
 
 <script>
+    // 固定的解锁密钥 (24位)，不区分大小写
+    const SECRET_TOKEN = "AQ9X7T4PM2V5L8W3R4N6Y1J0";
+
     const questions = [
         { dim: "维度一：生存基石（现实与物质条件）", q: "1. 对方目前的收入水平与职业前景如何？", options: [
             { text: "A. 收入丰厚且稳定，在同龄人中属于前列（如高薪、有分红/股权等）。", score: 4 },
@@ -198,6 +231,7 @@
         ]}
     ];
 
+    // 渲染题目
     const container = document.getElementById('questions-container');
     questions.forEach((item, index) => {
         let html = '';
@@ -205,16 +239,23 @@
             html += `<div class="dimension-title">${item.dim}</div>`;
         }
         html += `<div class="question"><p>${item.q}</p><div class="options">`;
-        item.options.forEach((opt, optIndex) => {
+        item.options.forEach((opt) => {
             html += `<label><input type="radio" name="q${index+1}" value="${opt.score}"> ${opt.text}</label>`;
         });
         html += `</div></div>`;
         container.innerHTML += html;
     });
 
-    function calculateScore() {
-        let totalScore = 0;
-        let veto = false;
+    // 全局变量保存得分数据
+    let g_totalScore = 0;
+    let g_veto = false;
+    let g_dimScores = [0, 0, 0, 0, 0]; // 5个维度的得分
+
+    // 步骤1：检查是否全答完，然后显示锁屏界面
+    function verifyAndLock() {
+        g_totalScore = 0;
+        g_veto = false;
+        g_dimScores = [0, 0, 0, 0, 0];
         let answeredCount = 0;
 
         for (let i = 1; i <= 25; i++) {
@@ -223,11 +264,16 @@
             for (let radio of radios) {
                 if (radio.checked) {
                     let score = parseInt(radio.value);
-                    totalScore += score;
+                    g_totalScore += score;
+                    
+                    // 计算维度得分 (每5题为一个维度)
+                    let dimIndex = Math.floor((i - 1) / 5);
+                    g_dimScores[dimIndex] += score;
+
                     answered = true;
                     // 一票否决逻辑：第21-25题选了D（1分）
                     if (i >= 21 && i <= 25 && score === 1) {
-                        veto = true;
+                        g_veto = true;
                     }
                     break;
                 }
@@ -236,41 +282,131 @@
         }
 
         if (answeredCount < 25) {
-            alert("请回答完所有25道问题后再提交哦！");
+            alert("请回答完所有25道问题后再生成报告哦！");
             return;
         }
 
+        // 隐藏问卷，显示锁屏
         document.getElementById('quizForm').style.display = 'none';
+        document.getElementById('lock-screen').style.display = 'block';
+        window.scrollTo(0, 0); // 滚动到顶部
+    }
+
+    // 步骤2：检查密码，绘制雷达图并显示结果
+    function checkPassword() {
+        let inputCode = document.getElementById('unlockCode').value.trim().toUpperCase();
+        
+        // 过滤掉用户可能输入的空格或横杠，方便匹配
+        inputCode = inputCode.replace(/[- ]/g, ""); 
+        
+        if (inputCode !== SECRET_TOKEN) {
+            alert("❌ 密钥验证失败！请输入有效的授权密钥。");
+            return;
+        }
+
+        // 密码正确，隐藏锁屏，显示结果框
+        document.getElementById('lock-screen').style.display = 'none';
         const resultBox = document.getElementById('result-box');
         const scoreValue = document.getElementById('scoreValue');
         const resultTitle = document.getElementById('resultTitle');
         const resultText = document.getElementById('resultText');
+        const chartArea = document.getElementById('chart-area');
         
         resultBox.style.display = 'block';
 
-        if (veto) {
+        // 绘制雷达图
+        drawRadarChart();
+
+        // 渲染文本结果
+        if (g_veto) {
             scoreValue.innerText = "🚨 触发一票否决 🚨";
             resultTitle.innerText = "【高耗损型危险关系】(极度危险，强烈建议止损)";
-            resultText.innerHTML = "<p><strong>【一票否决权警告】：</strong>你在底线与品性维度中选择了触碰底线的选项，这段关系属于“极度危险的劣质资产”，无需计算总分，建议直接启动退出机制。</p><p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！TA在人品底线上全面溃败。TA本身就是你生活中最大的风雨。这段关系正在疯狂吸食你的能量、金钱和青春。</p><p><strong>破局建议：</strong><br>1. 打消圣母情节：你改变不了一个本质上自私、缺乏责任感的人。<br>2. 制定安全撤退计划：保护好自己的人身和财产安全。<br>3. 寻求外部支持：立刻向家人、闺蜜或专业心理咨询师求助，果断离开。</p>";
+            resultTitle.style.color = "#c0392b";
+            resultBox.style.borderColor = "#e74c3c";
+            resultBox.style.backgroundColor = "#fff5f5";
+            resultText.innerHTML = "<p><strong>【一票否决权警告】：</strong>你在底线与品性维度中选择了触碰底线的选项，这段关系属于“极度危险的劣质资产”，无需看总分，建议直接启动退出机制。</p><p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！TA在人品底线上全面溃败。TA本身就是你生活中最大的风雨。这段关系正在疯狂吸食你的能量、金钱和青春。</p><p><strong>破局建议：</strong><br>1. 打消圣母情节：你改变不了一个本质上自私、缺乏责任感的人。<br>2. 制定安全撤退计划：保护好自己的人身和财产安全。<br>3. 寻求外部支持：立刻向家人、闺蜜或专业心理咨询师求助，果断离开。</p>";
             return;
         }
 
-        scoreValue.innerText = "总分：" + totalScore + " 分";
+        scoreValue.innerText = "测评总分：" + g_totalScore + " 分";
 
-        if (totalScore >= 90) {
+        if (g_totalScore >= 90) {
             resultTitle.innerText = "级别一：【稀缺级人生合伙人】 (完美契合)";
             resultText.innerHTML = "<p><strong>深度剖析：</strong>恭喜你！你挖到了婚恋市场上的“极品钻石”。TA不仅有坚实的物质基础，还能提供极高的情绪价值。你们不仅是爱人，更是并肩作战的战友。在这段关系中，你们彼此滋养，互相成就。</p><p><strong>维系建议：</strong><br>1. 加大情感投资：双向奔赴才能长久。<br>2. 警惕理所当然：不要因为TA太好而变得肆无忌惮。<br>3. 尽早绑定核心利益：如果还没结婚，可以考虑进入人生的下一阶段了。</p>";
-        } else if (totalScore >= 75) {
+        } else if (g_totalScore >= 75) {
             resultTitle.innerText = "级别二：【优质适配型伴侣】 (状态良好)";
-            resultText.innerHTML = "<p><strong>深度剖析：</strong>TA是一个值得托付的优秀对象。虽然可能在某些细节上不够完美，但TA的底线清晰、人品可靠，且具有极强的成长潜力和向心力。小磕小碰掩盖不了TA真诚爱你的心。</p><p><strong>破局/调整建议：</strong><br>1. 聚焦短板沟通：在双方心情好的时候，把扣分的问题拿出来温和地探讨。<br>2. 建立联合目标：通过共同攒钱等行为，加固“生存基石”。<br>3. 接纳真实的不完美：珍惜身边这个有血有肉、愿意为你付出的普通人。</p>";
-        } else if (totalScore >= 60) {
+            resultText.innerHTML = "<p><strong>深度剖析：</strong>TA是一个值得托付的优秀对象。虽然可能在某些细节上不够完美，但TA的底线清晰、人品可靠，且具有极强的成长潜力和向心力。小磕小碰掩盖不了TA真诚爱你的心。</p><p><strong>破局/调整建议：</strong><br>1. 聚焦短板沟通：在双方心情好的时候，把雷达图中得分较低的维度拿出来温和地探讨。<br>2. 建立联合目标：通过共同攒钱等行为，加固“生存基石”。<br>3. 接纳真实的不完美：珍惜身边这个有血有肉、愿意为你付出的普通人。</p>";
+        } else if (g_totalScore >= 60) {
             resultTitle.innerText = "级别三：【风险与潜力并存的鸡肋期】 (需要调整)";
             resultTitle.style.color = "#f39c12";
-            resultText.innerHTML = "<p><strong>深度剖析：</strong>这段关系目前处于“食之无味，弃之可惜”的状态。TA可能在物质或情绪供给上出现了明显的短板。在这段关系里，你的内耗正在增加。TA不是坏人，但绝对不是一个成熟的合伙人。</p><p><strong>破局建议：</strong><br>1. 停止无底线妥协：设定你的底线规则。<br>2. 考察对方的“可塑性”：提出问题后观察TA是努力改变还是敷衍了事。<br>3. 提升自我筹码：把80%的精力收回到自己身上，当你的核心价值提升，才有随时离开的底气。</p>";
+            resultBox.style.borderColor = "#f39c12";
+            resultBox.style.backgroundColor = "#fffdf5";
+            resultText.innerHTML = "<p><strong>深度剖析：</strong>这段关系目前处于“食之无味，弃之可惜”的状态。TA在某个维度上出现了明显的短板（请参考上方雷达图凹陷区域）。在这段关系里，你的内耗正在增加。TA不是坏人，但绝对不是一个成熟的合伙人。</p><p><strong>破局建议：</strong><br>1. 停止无底线妥协：设定你的底线规则。<br>2. 考察对方的“可塑性”：提出问题后观察TA是努力改变还是敷衍了事。<br>3. 提升自我筹码：把80%的精力收回到自己身上，当你的核心价值提升，才有随时离开的底气。</p>";
         } else {
             resultTitle.innerText = "级别四：【高耗损型危险关系】 (极度危险，强烈建议止损)";
+            resultTitle.style.color = "#c0392b";
+            resultBox.style.borderColor = "#e74c3c";
+            resultBox.style.backgroundColor = "#fff5f5";
             resultText.innerHTML = "<p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！TA在经济、情绪、人品上全面溃败。TA本身就是你生活中最大的风雨。这段关系正在疯狂吸食你的能量、金钱和青春。</p><p><strong>破局建议：</strong><br>1. 打消圣母情节：你改变不了一个本质上自私、缺乏责任感的人。<br>2. 制定安全撤退计划：慢慢剥离双方的财务纠葛，保护好自己。<br>3. 寻求外部支持：立刻向家人、闺蜜求助，果断离开。</p>";
         }
+    }
+
+    // 绘制雷达图的函数
+    let myChart = null;
+    function drawRadarChart() {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        
+        // 如果之前画过图，先销毁，避免重叠
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        // 根据是否有触发“一票否决”来决定雷达图的颜色
+        let chartColor = g_veto ? 'rgba(231, 76, 60, 0.5)' : 'rgba(52, 152, 219, 0.5)';
+        let borderColor = g_veto ? 'rgba(192, 57, 43, 1)' : 'rgba(41, 128, 185, 1)';
+
+        myChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['生存基石(物质)', '情感供给(爱意)', '风控与情绪底盘', '成长联盟(未来)', '底线与品性'],
+                datasets: [{
+                    label: '伴侣多维价值雷达图 (每项满分20分)',
+                    data: g_dimScores,
+                    backgroundColor: chartColor,
+                    borderColor: borderColor,
+                    pointBackgroundColor: borderColor,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: borderColor,
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: {
+                            font: { size: 14, family: "'PingFang SC', 'Microsoft YaHei', sans-serif", weight: 'bold' },
+                            color: '#2c3e50'
+                        },
+                        ticks: {
+                            min: 5,   // 单项最低分为5分 (5题全选D)
+                            max: 20,  // 单项满分为20分
+                            stepSize: 5,
+                            display: false // 隐藏雷达图中间的数字圈
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { font: { size: 14, family: "'PingFang SC', 'Microsoft YaHei', sans-serif" } }
+                    }
+                }
+            }
+        });
     }
 </script>
 

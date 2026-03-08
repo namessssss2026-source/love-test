@@ -35,4 +35,73 @@
         .dimension-title { background: #fdfbf7; color: var(--primary-color); padding: 10px 15px; border-radius: 6px; margin-top: 35px; font-size: 16px; font-weight: bold; border: 1px solid #f2e9df; display: flex; align-items: center; }
         .dimension-title::before { content: "✦"; margin-right: 8px; }
         .question { margin-top: 20px; }
-        .question p {
+        .question p { font-weight: bold; margin-top: 0; font-size: 15px; color: #444; }
+        .options label { display: block; padding: 12px 15px; margin: 8px 0; border: 1px solid #eee; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 14px; background: #fff; }
+        .options label:hover { background: #fcfaf8; border-color: var(--primary-color); }
+        input[type="radio"] { margin-right: 10px; accent-color: var(--primary-color); }
+
+        /* 加载界面 */
+        #loading-screen { display: none; text-align: center; padding: 50px 20px; }
+        .spinner { border: 4px solid rgba(0,0,0,0.05); border-left-color: var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { font-size: 15px; color: #666; font-weight: bold; margin-bottom: 10px; }
+        .progress-bar { width: 100%; background: #eee; border-radius: 10px; overflow: hidden; height: 8px; margin-top: 20px; }
+        .progress-fill { height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s ease; }
+
+        /* 结果界面 */
+        #result-box { display: none; margin-top: 10px; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .result-header { text-align: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed #eee; }
+        .score-circle { width: 100px; height: 100px; line-height: 100px; border-radius: 50%; background: #fdfbf7; border: 4px solid var(--primary-color); margin: 0 auto 15px; font-size: 32px; font-weight: bold; color: var(--primary-color); }
+        .result-title { font-size: 20px; font-weight: bold; color: #2c2a29; margin-bottom: 10px; }
+        .percentile-box { background: linear-gradient(135deg, #fdfbf7 0%, #fff 100%); padding: 15px; border-radius: 8px; font-size: 14px; border: 1px solid #f2e9df; color: #555; }
+        .percentile-box strong { color: var(--danger-red); font-size: 18px; }
+        
+        .chart-container { position: relative; width: 100%; margin: 30px auto; }
+        .chart-title { text-align: center; font-size: 14px; font-weight: bold; color: #666; margin-bottom: -10px; }
+        
+        .result-text { font-size: 14px; line-height: 1.8; color: #444; }
+        .result-text h3 { font-size: 16px; color: var(--primary-color); border-left: 4px solid var(--primary-color); padding-left: 10px; margin-top: 25px; }
+        .highlight { background: rgba(212, 163, 115, 0.15); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #bc8a59; }
+        
+        .watermark { text-align: center; font-size: 12px; color: #ccc; margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>伴侣全维深度扫描与底色评估</h1>
+    <div class="subtitle">AI算法引擎 · 独家情感风控模型</div>
+
+    <!-- 步骤1：授权门禁 -->
+    <div id="auth-screen">
+        <div class="auth-icon">🔒</div>
+        <div class="auth-desc">
+            <p><strong>【写在前面】：</strong></p>
+            <p>男人的嘴可以骗人，但底层逻辑和沉没成本不会。本测试基于戈特曼婚姻实验室理论及大数据库，帮你精准识别他是<strong>“优质资产”</strong>还是<strong>“负债盲盒”</strong>。</p>
+            <p style="color:#d9534f; font-size: 12px; margin-top:10px;">* 系统已拦截白嫖行为，请输入客服下发的专属密钥激活测评。</p>
+        </div>
+        <input type="text" id="unlockCode" placeholder="请输入专属授权密钥">
+        <button type="button" id="btn-verify">验证密钥，开启深度扫描</button>
+    </div>
+
+    <!-- 步骤2：问卷表单 -->
+    <div id="quiz-section">
+        <div class="auth-desc" style="margin-bottom: 20px;">
+            <strong>答题指引：</strong>请放下滤镜，回忆你们相处中的具体细节。选择他<strong>最真实的下意识反应</strong>，而不是他画的饼或偶尔伪装的样子。
+        </div>
+        <form id="quizForm">
+            <div id="questions-container"></div>
+            <button type="button" id="btn-submit">提交并生成专属诊断报告</button>
+        </form>
+    </div>
+
+    <!-- 步骤3：高逼格加载界面 -->
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-msg">正在链接全网男性大数据库...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p style="font-size: 12px; color: #999; margin-top: 15px;">AI正在进行多维度数据交叉比对，请勿关闭页面...</p>
+    </div>

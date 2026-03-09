@@ -6,50 +6,57 @@
     <title>【深度私密】全维伴侣价值与长期关系健康度评估系统</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 15px; }
-        .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        h1 { text-align: center; color: #2c3e50; font-size: 22px; margin-bottom: 10px; }
-        .subtitle { text-align: center; color: #7f8c8d; font-size: 13px; margin-bottom: 25px; }
+        /* 整体粉色系背景与基础字体 */
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #fdf3f6; color: #4a4a4a; margin: 0; padding: 15px; }
+        .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 25px rgba(255, 182, 193, 0.2); border: 1px solid #ffebf0; }
+        h1 { text-align: center; color: #d81b60; font-size: 22px; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #a07a82; font-size: 13px; margin-bottom: 25px; }
         
+        /* 渐变粉色按钮 */
         .btn { display: block; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; text-align: center; color: white; box-sizing: border-box; }
-        .btn-gold { background: linear-gradient(135deg, #f1c40f, #f39c12); box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4); }
-        .btn-gold:hover { background: linear-gradient(135deg, #f39c12, #e67e22); }
-        .btn-blue { background: linear-gradient(135deg, #3498db, #2980b9); box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4); margin-top: 30px; }
+        .btn-pink-light { background: linear-gradient(135deg, #ff9a9e, #fecfef); box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4); color: #c2185b; }
+        .btn-pink-light:hover { background: linear-gradient(135deg, #fecfef, #ff9a9e); }
+        .btn-pink-dark { background: linear-gradient(135deg, #ff758c, #ff7eb3); box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4); margin-top: 30px; }
+        .btn-pink-dark:hover { background: linear-gradient(135deg, #ff7eb3, #ff758c); }
         
-        #auth-screen { padding: 30px 10px; text-align: center; }
+        /* 免责声明 */
+        .disclaimer-box { background: #fff5f7; border: 1px dashed #ffb6c1; padding: 12px 15px; border-radius: 8px; font-size: 12px; color: #885a63; line-height: 1.6; margin-bottom: 20px; text-align: left; }
+        .disclaimer-box strong { color: #d81b60; }
+
+        #auth-screen { padding: 20px 10px; text-align: center; }
         .lock-icon { font-size: 50px; margin-bottom: 15px; }
-        .auth-tips { font-size: 14px; color: #7f8c8d; margin-bottom: 30px; line-height: 1.6; }
-        .auth-input { width: 90%; max-width: 350px; padding: 15px; font-size: 16px; text-align: center; border: 2px solid #bdc3c7; border-radius: 8px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; outline: none; transition: 0.3s; }
-        .auth-input:focus { border-color: #f39c12; }
+        .auth-tips { font-size: 14px; color: #a07a82; margin-bottom: 30px; line-height: 1.6; }
+        .auth-input { width: 90%; max-width: 350px; padding: 15px; font-size: 16px; text-align: center; border: 2px solid #f8cdda; border-radius: 8px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; outline: none; transition: 0.3s; background: #fffcfd; color: #d81b60; font-weight: bold; }
+        .auth-input:focus { border-color: #ff758c; box-shadow: 0 0 8px rgba(255, 117, 140, 0.2); }
 
         #quiz-screen { display: none; }
-        .intro { background: #fff8e1; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; color: #d35400; border-left: 4px solid #f39c12; }
-        .dimension-title { background: #34495e; color: #f1c40f; padding: 12px 15px; border-radius: 6px; margin-top: 30px; font-size: 16px; font-weight: bold; letter-spacing: 1px; }
-        .question { margin-top: 20px; padding: 15px; border: 1px solid #eee; border-radius: 8px; background: #fafbfc; }
-        .question p { font-weight: bold; margin-top: 0; color: #2c3e50; }
-        .options label { display: block; padding: 12px; margin: 8px 0; border: 1px solid #e0e6ed; border-radius: 6px; cursor: pointer; transition: 0.2s; background: white; }
-        .options label:hover { background: #f0f7ff; border-color: #3498db; }
-        input[type="radio"] { margin-right: 10px; accent-color: #3498db; }
+        .intro { background: #fff0f4; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; color: #c2185b; border-left: 4px solid #ff758c; }
+        .dimension-title { background: #ffe4e8; color: #d81b60; padding: 12px 15px; border-radius: 6px; margin-top: 30px; font-size: 16px; font-weight: bold; letter-spacing: 1px; border-left: 4px solid #ff758c; }
+        .question { margin-top: 20px; padding: 15px; border: 1px solid #ffebf0; border-radius: 8px; background: #fffbfc; }
+        .question p { font-weight: bold; margin-top: 0; color: #5d4037; }
+        .options label { display: block; padding: 12px; margin: 8px 0; border: 1px solid #f8cdda; border-radius: 6px; cursor: pointer; transition: 0.2s; background: white; color: #4a4a4a; }
+        .options label:hover { background: #fff0f4; border-color: #ff758c; color: #d81b60; }
+        input[type="radio"] { margin-right: 10px; accent-color: #ff758c; }
 
         #loading-screen { display: none; text-align: center; padding: 60px 20px; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #ffebf0; border-top: 5px solid #ff758c; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .progress-bar { width: 100%; height: 10px; background: #eee; border-radius: 5px; margin-top: 30px; overflow: hidden; }
-        .progress-fill { height: 100%; width: 0%; background: #3498db; transition: width 0.3s ease; }
-        #loading-text { font-size: 16px; color: #2c3e50; font-weight: bold; margin-top: 20px; height: 24px;}
+        .progress-bar { width: 100%; height: 10px; background: #ffebf0; border-radius: 5px; margin-top: 30px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff9a9e, #ff758c); transition: width 0.3s ease; }
+        #loading-text { font-size: 16px; color: #d81b60; font-weight: bold; margin-top: 20px; height: 24px;}
 
         #result-screen { display: none; padding-top: 20px; }
-        .result-header { text-align: center; margin-bottom: 30px; }
-        .score-box { background: #fdf2e9; border: 2px solid #e67e22; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; }
-        .score-number { font-size: 48px; font-weight: bold; color: #d35400; line-height: 1; margin-bottom: 5px; }
-        .percentile-text { font-size: 18px; color: #c0392b; font-weight: bold; margin-top: 10px; }
-        .chart-wrapper { background: white; border: 1px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .chart-title { text-align: center; font-size: 15px; font-weight: bold; color: #7f8c8d; margin-bottom: 10px; }
+        .result-header { text-align: center; margin-bottom: 30px; color: #d81b60; }
+        .score-box { background: #fff5f7; border: 2px solid #ffb6c1; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; }
+        .score-number { font-size: 48px; font-weight: bold; color: #ff758c; line-height: 1; margin-bottom: 5px; }
+        .percentile-text { font-size: 18px; color: #c2185b; font-weight: bold; margin-top: 10px; }
+        .chart-wrapper { background: white; border: 1px solid #ffebf0; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(255, 182, 193, 0.15); }
+        .chart-title { text-align: center; font-size: 15px; font-weight: bold; color: #a07a82; margin-bottom: 10px; }
         canvas { max-width: 100%; }
-        .report-content { background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 5px solid #3498db; font-size: 15px; line-height: 1.8; color: #2c3e50; }
-        .report-content h3 { color: #2980b9; margin-top: 0; font-size: 18px; }
+        .report-content { background: #fffcfd; padding: 20px; border-radius: 12px; border-left: 5px solid #ff758c; font-size: 15px; line-height: 1.8; color: #5d4037; border-right: 1px solid #ffebf0; border-top: 1px solid #ffebf0; border-bottom: 1px solid #ffebf0;}
+        .report-content h3 { color: #d81b60; margin-top: 0; font-size: 18px; }
         
-        /* 致命底线警告框专属样式 */
+        /* 致命底线警告框专属样式（保持红色警示） */
         .fatal-warning-box { background: #fff0f0; border: 1px solid #ffcccc; padding: 15px; border-radius: 8px; margin: 15px 0; }
         .fatal-warning-box h4 { color: #c0392b; margin-top: 0; margin-bottom: 10px; font-size: 16px; }
         .fatal-warning-box ul { margin: 0; padding-left: 20px; color: #c0392b; font-weight: bold; }
@@ -63,15 +70,21 @@
     <div class="subtitle">PCVI 内部数据分析引擎 v3.0 | 仅供授权用户使用</div>
 
     <div id="auth-screen">
+        <!-- 免责声明区 -->
+        <div class="disclaimer-box">
+            <strong>免责声明：</strong><br>
+            本测试结果基于“社会交换理论”及特定行为算法模型生成，仅供情感复盘与自我觉察参考。感情世界复杂多变，不可完全量化。请结合现实情况理性看待，<strong>本系统不对任何个人情感决策承担连带责任。</strong>测试过程完全私密，不会上传记录您的个人信息。
+        </div>
+
         <div class="lock-icon">🔐</div>
-        <h2 style="color: #2c3e50;">系统已锁定</h2>
+        <h2 style="color: #d81b60;">系统已锁定</h2>
         <p class="auth-tips">
-            本测试依托“婚恋市场大数据”与“社会交换理论”交叉建立。<br>
+            本测试依托“婚恋市场大数据”与心理学交叉建立。<br>
             因涉及深度心理分析与现实刺痛，<strong>非授权用户禁止访问。</strong><br><br>
             请输入您的 24 位专属分析密钥 (Token) 以开启测试：
         </p>
         <input type="text" id="authCode" class="auth-input" placeholder="请输入密钥...">
-        <button class="btn btn-gold" onclick="verifyToken()">验证密钥并开启测试</button>
+        <button class="btn btn-pink-light" onclick="verifyToken()">验证密钥并开启测试</button>
     </div>
 
     <div id="quiz-screen">
@@ -80,18 +93,18 @@
         </div>
         <form id="quizForm">
             <div id="questions-container"></div>
-            <button type="button" class="btn btn-blue" onclick="submitQuiz()">生成独家诊断报告</button>
+            <button type="button" class="btn btn-pink-dark" onclick="submitQuiz()">生成独家诊断报告</button>
         </form>
     </div>
 
     <div id="loading-screen">
         <div class="spinner"></div>
-        <h2 style="color: #2c3e50;">数据运算中...</h2>
+        <h2 style="color: #d81b60;">数据运算中...</h2>
         <div id="loading-text">正在上传答卷数据...</div>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
-        <p style="color: #95a5a6; font-size: 12px; margin-top: 20px;">系统正在调取全网男性大数据库进行多维交叉比对，请勿关闭页面。</p>
+        <p style="color: #a07a82; font-size: 12px; margin-top: 20px;">系统正在调取全网男性大数据库进行多维交叉比对，请勿关闭页面。</p>
     </div>
 
     <div id="result-screen">
@@ -100,7 +113,7 @@
         </div>
         
         <div class="score-box" id="scoreBox">
-            <div style="color: #e67e22; font-size: 14px; font-weight: bold;">综合评估得分</div>
+            <div style="color: #d81b60; font-size: 14px; font-weight: bold;">综合评估得分</div>
             <div class="score-number" id="scoreValue">0</div>
             <div class="percentile-text" id="percentileText">加载中...</div>
         </div>
@@ -340,7 +353,7 @@
         }
 
         if (answeredCount < 25) {
-            alert("请回答完所有 25 道底层逻辑测试题后再生成报告！");
+            alert("亲爱的，请回答完所有 25 道测试题后再生成报告哦！");
             return;
         }
 
@@ -421,16 +434,16 @@
             chartScore = 25; 
         } else {
             scoreValue.innerText = g_totalScore;
-            scoreValue.style.color = "#d35400";
+            scoreValue.style.color = "#ff758c";
             radarTitle.innerText = "【个人五维价值雷达透视图】";
-            radarTitle.style.color = "#7f8c8d";
+            radarTitle.style.color = "#a07a82";
 
             if (g_totalScore >= 75) {
                 pctText.innerText = `🔥 恭喜！他的综合价值击败了全国 ${percentile}% 的男性`;
-                pctText.style.color = "#27ae60";
+                pctText.style.color = "#d81b60"; // 优质高分使用明媚的玫瑰色
             } else {
                 pctText.innerText = `综合评价击败了全国 ${percentile}% 的男性`;
-                pctText.style.color = "#d35400";
+                pctText.style.color = "#c2185b";
             }
         }
 
@@ -446,7 +459,7 @@
             let reasonsHtml = g_vetoReasons.map(reason => `<li>${reason}</li>`).join('');
             
             report.innerHTML = `
-                <h3>🚨 【高危警报】虚假的高分伪装 / 劣质资产</h3>
+                <h3 style="color:#c0392b;">🚨 【高危警报】虚假的高分伪装 / 劣质资产</h3>
                 <p><strong>⚠️ 一票否决清零机制：</strong>就算他前面表现得再好（哪怕特别有钱、极懂浪漫），但系统检测到他在【人品与底线】维度中触碰了不可饶恕的红线。在这个底层逻辑模型里，**底线=0，则一切皆为0**。这高分不过是裹着糖衣的毒药。</p>
                 
                 <div class="fatal-warning-box">
@@ -483,7 +496,7 @@
             data.push(y);
             
             if(i === userScore) {
-                pointColors.push('#e74c3c'); 
+                pointColors.push('#d81b60'); // 标记点用深粉红
                 pointRadii.push(6);
             } else {
                 pointColors.push('rgba(0,0,0,0)');
@@ -498,8 +511,8 @@
                 datasets: [{
                     label: '全网男性数据分布曲线',
                     data: data,
-                    borderColor: '#3498db',
-                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    borderColor: '#ff758c', // 折线粉色
+                    backgroundColor: 'rgba(255, 117, 140, 0.15)', // 填充粉色
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4, 
@@ -544,8 +557,9 @@
         // 核心修改区：如果触发一票否决，雷达图的数据全部变成 0！强制坍塌成一个点！
         let finalRadarData = g_veto ? [0, 0, 0, 0, 0] : g_dimScores;
 
-        let chartColor = g_veto ? 'rgba(231, 76, 60, 0.3)' : 'rgba(241, 196, 15, 0.3)';
-        let borderColor = g_veto ? 'rgba(192, 57, 43, 1)' : 'rgba(243, 156, 18, 1)';
+        // 正常状态粉色系，触发底线则为刺眼的警告红
+        let chartColor = g_veto ? 'rgba(192, 57, 43, 0.3)' : 'rgba(255, 117, 140, 0.3)';
+        let borderColor = g_veto ? 'rgba(192, 57, 43, 1)' : 'rgba(255, 117, 140, 1)';
 
         rChart = new Chart(ctx, {
             type: 'radar',
@@ -570,11 +584,11 @@
                     r: {
                         min: 0,   
                         max: 20,  
-                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        angleLines: { color: 'rgba(0, 0, 0, 0.05)' },
                         grid: { color: 'rgba(0, 0, 0, 0.05)' },
                         pointLabels: {
                             font: { size: 12, family: "'PingFang SC', sans-serif", weight: 'bold' },
-                            color: g_veto ? '#c0392b' : '#34495e' // 如果触发底线，连外圈文字都变红警告
+                            color: g_veto ? '#c0392b' : '#5d4037' // 如果触发底线，连外圈文字都变红警告
                         },
                         ticks: { stepSize: 5, display: false }
                     }

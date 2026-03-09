@@ -11,20 +11,17 @@
         h1 { text-align: center; color: #2c3e50; font-size: 22px; margin-bottom: 10px; }
         .subtitle { text-align: center; color: #7f8c8d; font-size: 13px; margin-bottom: 25px; }
         
-        /* 按钮通用样式 */
         .btn { display: block; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; text-align: center; color: white; box-sizing: border-box; }
         .btn-gold { background: linear-gradient(135deg, #f1c40f, #f39c12); box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4); }
         .btn-gold:hover { background: linear-gradient(135deg, #f39c12, #e67e22); }
         .btn-blue { background: linear-gradient(135deg, #3498db, #2980b9); box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4); margin-top: 30px; }
         
-        /* 授权页面 */
         #auth-screen { padding: 30px 10px; text-align: center; }
         .lock-icon { font-size: 50px; margin-bottom: 15px; }
         .auth-tips { font-size: 14px; color: #7f8c8d; margin-bottom: 30px; line-height: 1.6; }
         .auth-input { width: 90%; max-width: 350px; padding: 15px; font-size: 16px; text-align: center; border: 2px solid #bdc3c7; border-radius: 8px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; outline: none; transition: 0.3s; }
         .auth-input:focus { border-color: #f39c12; }
 
-        /* 问卷页面 */
         #quiz-screen { display: none; }
         .intro { background: #fff8e1; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; color: #d35400; border-left: 4px solid #f39c12; }
         .dimension-title { background: #34495e; color: #f1c40f; padding: 12px 15px; border-radius: 6px; margin-top: 30px; font-size: 16px; font-weight: bold; letter-spacing: 1px; }
@@ -34,7 +31,6 @@
         .options label:hover { background: #f0f7ff; border-color: #3498db; }
         input[type="radio"] { margin-right: 10px; accent-color: #3498db; }
 
-        /* 加载动画页面 */
         #loading-screen { display: none; text-align: center; padding: 60px 20px; }
         .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -42,7 +38,6 @@
         .progress-fill { height: 100%; width: 0%; background: #3498db; transition: width 0.3s ease; }
         #loading-text { font-size: 16px; color: #2c3e50; font-weight: bold; margin-top: 20px; height: 24px;}
 
-        /* 结果页面 */
         #result-screen { display: none; padding-top: 20px; }
         .result-header { text-align: center; margin-bottom: 30px; }
         .score-box { background: #fdf2e9; border: 2px solid #e67e22; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; }
@@ -61,7 +56,6 @@
     <h1>全维伴侣价值深度评估系统</h1>
     <div class="subtitle">PCVI 内部数据分析引擎 v3.0 | 仅供授权用户使用</div>
 
-    <!-- 1. 关卡前置：密码授权界面 -->
     <div id="auth-screen">
         <div class="lock-icon">🔐</div>
         <h2 style="color: #2c3e50;">系统已锁定</h2>
@@ -74,7 +68,6 @@
         <button class="btn btn-gold" onclick="verifyToken()">验证密钥并开启测试</button>
     </div>
 
-    <!-- 2. 问卷界面 -->
     <div id="quiz-screen">
         <div class="intro">
             <strong>⚠️ 核心警告：</strong>请摒弃“恋爱脑”与“圣母心”，严格根据他在现实生活中的<strong>真实表现</strong>作答，不要根据他的“承诺”或“画饼”来选择。数据无情，请真实面对。
@@ -85,7 +78,6 @@
         </form>
     </div>
 
-    <!-- 3. 加载伪装界面 -->
     <div id="loading-screen">
         <div class="spinner"></div>
         <h2 style="color: #2c3e50;">数据运算中...</h2>
@@ -96,7 +88,6 @@
         <p style="color: #95a5a6; font-size: 12px; margin-top: 20px;">系统正在调取全网男性大数据库进行多维交叉比对，请勿关闭页面。</p>
     </div>
 
-    <!-- 4. 结果报告界面 -->
     <div id="result-screen">
         <div class="result-header">
             <h2>📊 独家伴侣价值诊断报告</h2>
@@ -123,7 +114,6 @@
 </div>
 
 <script>
-    // 固定的解锁密钥
     const SECRET_TOKEN = "AQ9X7T4PM2V5L8W3R4N6Y1J0";
 
     const questions = [
@@ -279,7 +269,6 @@
         ]}
     ];
 
-    // 1. 验证密码解锁问卷
     function verifyToken() {
         let inputCode = document.getElementById('authCode').value.trim().toUpperCase().replace(/[- ]/g, ""); 
         if (inputCode !== SECRET_TOKEN) {
@@ -291,7 +280,6 @@
         renderQuestions();
     }
 
-    // 2. 渲染题目
     function renderQuestions() {
         const container = document.getElementById('questions-container');
         container.innerHTML = '';
@@ -311,7 +299,6 @@
     let g_veto = false;
     let g_dimScores = [0, 0, 0, 0, 0]; 
 
-    // 3. 提交问卷，触发加载动画
     function submitQuiz() {
         g_totalScore = 0;
         g_veto = false;
@@ -340,14 +327,12 @@
             return;
         }
 
-        // 切换到加载动画
         document.getElementById('quiz-screen').style.display = 'none';
         document.getElementById('loading-screen').style.display = 'block';
         window.scrollTo(0, 0);
         simulateLoading();
     }
 
-    // 4. 模拟高端加载动画 (等待约 3.5 秒)
     function simulateLoading() {
         const fill = document.getElementById('progress-fill');
         const text = document.getElementById('loading-text');
@@ -368,11 +353,10 @@
             if (progress >= 100) {
                 progress = 100;
                 clearInterval(interval);
-                setTimeout(showResults, 500); // 满100%后再等0.5秒出结果
+                setTimeout(showResults, 500); 
             }
             fill.style.width = progress + '%';
             
-            // 随进度切换文字
             let expectedStage = Math.floor((progress / 100) * stages.length);
             if(expectedStage >= stages.length) expectedStage = stages.length - 1;
             if(expectedStage > stageIndex) {
@@ -382,50 +366,62 @@
         }, 120); 
     }
 
-    // 5. 计算击败全国百分比 (定制小红书数值，让数值更好看)
     function calculatePercentile(score) {
-        if (g_veto) return 0.1; // 一票否决直接垫底
+        if (g_veto) return 0.1; 
         if (score <= 35) return Math.max(1, score - 20); 
-        if (score >= 90) return 96 + (score - 90) * 0.3; // 90分以上就是 96% ~ 99%
-        if (score >= 75) return 75 + (score - 75) * 1.4; // 75分是 75%
-        if (score >= 60) return 30 + (score - 60) * 3;   // 60分及格是 30%
+        if (score >= 90) return 96 + (score - 90) * 0.3; 
+        if (score >= 75) return 75 + (score - 75) * 1.4; 
+        if (score >= 60) return 30 + (score - 60) * 3;   
         return Math.max(5, (score - 25)); 
     }
 
-    // 6. 显示结果页面
     function showResults() {
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('result-screen').style.display = 'block';
 
         const percentile = calculatePercentile(g_totalScore).toFixed(1);
-
-        // 设置分数面板
-        document.getElementById('scoreValue').innerText = g_totalScore;
+        const scoreBox = document.getElementById('scoreBox');
+        const scoreValue = document.getElementById('scoreValue');
         const pctText = document.getElementById('percentileText');
         
+        let chartScore = g_totalScore; // 用于画正态分布曲线的分数
+
+        // 核心修改区：触发红线时，隐藏原有高分，强制显示“清零警告”
         if (g_veto) {
-            document.getElementById('scoreBox').style.borderColor = "#c0392b";
-            document.getElementById('scoreValue').style.color = "#c0392b";
-            pctText.innerText = `⚠️ 极度危险：击败了不足 1% 的男性！`;
+            scoreBox.style.borderColor = "#c0392b";
+            scoreBox.style.backgroundColor = "#fff5f5";
+            
+            // 把那刺眼的97分换成红字警告！
+            scoreValue.innerHTML = "<span style='font-size:32px;'>🚫 底线崩塌·强制清零</span>";
+            scoreValue.style.color = "#c0392b";
+            
+            pctText.innerText = `⚠️ 极度危险：实际有效价值跌破底盘 (不足 1%)`;
             pctText.style.color = "#c0392b";
-        } else if (g_totalScore >= 75) {
-            pctText.innerText = `🔥 恭喜！他的综合价值击败了全国 ${percentile}% 的男性`;
-            pctText.style.color = "#27ae60";
+
+            // 强制让正态分布图的红点跌到最左侧的谷底 (25分的位置)
+            chartScore = 25; 
         } else {
-            pctText.innerText = `击败了全国 ${percentile}% 的男性`;
-            pctText.style.color = "#d35400";
+            // 正常未触发底线的情况
+            scoreValue.innerText = g_totalScore;
+            scoreValue.style.color = "#d35400";
+            if (g_totalScore >= 75) {
+                pctText.innerText = `🔥 恭喜！他的综合价值击败了全国 ${percentile}% 的男性`;
+                pctText.style.color = "#27ae60";
+            } else {
+                pctText.innerText = `综合评价击败了全国 ${percentile}% 的男性`;
+                pctText.style.color = "#d35400";
+            }
         }
 
-        drawBellCurve(g_totalScore, percentile);
+        drawBellCurve(chartScore, percentile);
         drawRadarChart();
         renderReportText();
     }
 
-    // 7. 渲染小红书风文案报告
     function renderReportText() {
         const report = document.getElementById('reportContent');
         if (g_veto) {
-            report.innerHTML = "<h3>🚨 【高危警报】底层吸血渣男 / 劣质资产</h3><p><strong>⚠️ 一票否决触发：</strong>姐妹，别看总分了！他在底线与品性维度中触碰了不可饶恕的红线（出轨/家暴/吸血/极度妈宝）。</p><p><strong>深度剖析：</strong>清醒一点！别散发圣母心了，这不是爱情，这是在精准扶贫甚至渡劫！他不仅不能给你遮风挡雨，他本身就是你生活中最大的风暴。继续耗下去，你的钱财、青春、甚至半条命都会被吸干。</p><p><strong>【高维破局建议】：</strong><br>1. 丢掉幻想：屎壳郎改变不了吃屎的本性，你救不了烂人。<br>2. 及时止损：沉没成本不是成本，尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全撤退路线，立马跑，不要回头！</p>";
+            report.innerHTML = "<h3>🚨 【高危警报】虚假的高分伪装 / 劣质资产</h3><p><strong>⚠️ 一票否决清零机制：</strong>就算他前面表现得再好（哪怕特别有钱、极懂浪漫），但系统检测到他在【人品与底线】维度中触碰了不可饶恕的红线（出轨/家暴/吸血/极度妈宝）。在这个模型里，**底线=0，则一切皆为0**。这高分不过是裹着糖衣的毒药。</p><p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！他极具迷惑性，但本身就是你生活中最大的风暴。继续耗下去，你的钱财、青春甚至半条命都会被吸干。</p><p><strong>【高维破局建议】：</strong><br>1. 丢掉幻想：屎壳郎改变不了吃屎的本性，你救不了烂人。<br>2. 及时止损：沉没成本不是成本，尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全撤退路线，立马跑，不要回头！</p>";
         } else if (g_totalScore >= 90) {
             report.innerHTML = "<h3>👑 【极品金字塔尖】高质量人生合伙人</h3><p><strong>深度剖析：</strong>天呐姐妹！你简直挖到了婚恋市场上的极品“钻石男”。他的物质底盘极其稳固，情绪价值直接拉满。他心智成熟、内核稳定，跟你不仅是情侣，更是能背靠背打怪升级的顶级战友。这种级别的男性，属于市场上极度稀缺的资源。</p><p><strong>【高维破局建议】：</strong><br>1. 疯狂提供情绪反馈：对这种优质伴侣，不要吝啬你的夸奖，“男人的好是夸出来的”。<br>2. 警惕“恃宠而骄”：双向奔赴才能锁死长久，不要把他当全能提款机。<br>3. 尽早绑定核心利益：千万别犹豫，可以直接进入人生下一阶段（结婚/生子）。</p>";
         } else if (g_totalScore >= 75) {
@@ -437,13 +433,11 @@
         }
     }
 
-    // 8. 绘制正态分布（钟形曲线）图表
     let bChart = null;
     function drawBellCurve(userScore, percentile) {
         const ctx = document.getElementById('bellChart').getContext('2d');
         if (bChart) bChart.destroy();
 
-        // 构造正态分布曲线数据 (均值大概65，标准差12)
         let labels = [];
         let data = [];
         let pointColors = [];
@@ -451,13 +445,11 @@
 
         for(let i = 25; i <= 100; i++) {
             labels.push(i);
-            // 数学高斯分布公式简化版，画出一个好看的钟形曲线
             let y = Math.exp(-Math.pow(i - 65, 2) / (2 * Math.pow(12, 2))) * 100; 
             data.push(y);
             
-            // 标出用户的位置
             if(i === userScore) {
-                pointColors.push('#e74c3c'); // 红色醒目点
+                pointColors.push('#e74c3c'); 
                 pointRadii.push(6);
             } else {
                 pointColors.push('rgba(0,0,0,0)');
@@ -476,7 +468,7 @@
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.4, // 曲线平滑度
+                    tension: 0.4, 
                     pointBackgroundColor: pointColors,
                     pointBorderColor: pointColors,
                     pointRadius: pointRadii,
@@ -487,10 +479,10 @@
                 responsive: true,
                 scales: {
                     x: { 
-                        title: { display: true, text: '综合测评得分 (25 - 100)' },
+                        title: { display: true, text: '综合测评有效得分 (25 - 100)' },
                         ticks: { callback: function(val, index) { return index % 10 === 0 ? labels[index] : ''; } } 
                     },
-                    y: { display: false } // 隐藏Y轴，只看形状
+                    y: { display: false } 
                 },
                 plugins: {
                     legend: { display: false },
@@ -498,6 +490,7 @@
                         callbacks: {
                             label: function(context) {
                                 if(context.parsed.x + 25 === userScore) {
+                                    if(userScore === 25 && g_veto) return `🚫 被系统强制打回谷底 (不及1%)`;
                                     return `他的得分: ${userScore}分 (超越 ${percentile}% 男性)`;
                                 }
                                 return '全网数据趋势';
@@ -509,7 +502,6 @@
         });
     }
 
-    // 9. 绘制雷达图 (修复了满分边界问题)
     let rChart = null;
     function drawRadarChart() {
         const ctx = document.getElementById('radarChart').getContext('2d');
@@ -539,8 +531,8 @@
                 responsive: true,
                 scales: {
                     r: {
-                        min: 0,   // 严格锁定原点为0
-                        max: 20,  // 严格锁定外圈满分为20
+                        min: 0,   
+                        max: 20,  
                         angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
                         grid: { color: 'rgba(0, 0, 0, 0.05)' },
                         pointLabels: {

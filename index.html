@@ -48,6 +48,12 @@
         canvas { max-width: 100%; }
         .report-content { background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 5px solid #3498db; font-size: 15px; line-height: 1.8; color: #2c3e50; }
         .report-content h3 { color: #2980b9; margin-top: 0; font-size: 18px; }
+        
+        /* 致命底线警告框专属样式 */
+        .fatal-warning-box { background: #fff0f0; border: 1px solid #ffcccc; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .fatal-warning-box h4 { color: #c0392b; margin-top: 0; margin-bottom: 10px; font-size: 16px; }
+        .fatal-warning-box ul { margin: 0; padding-left: 20px; color: #c0392b; font-weight: bold; }
+        .fatal-warning-box li { margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -105,7 +111,7 @@
         </div>
 
         <div class="chart-wrapper">
-            <div class="chart-title">【个人五维价值雷达透视图】</div>
+            <div class="chart-title" id="radarTitle">【个人五维价值雷达透视图】</div>
             <canvas id="radarChart"></canvas>
         </div>
 
@@ -298,11 +304,13 @@
     let g_totalScore = 0;
     let g_veto = false;
     let g_dimScores = [0, 0, 0, 0, 0]; 
+    let g_vetoReasons = []; // 用来记录具体触碰了哪几条底线
 
     function submitQuiz() {
         g_totalScore = 0;
         g_veto = false;
         g_dimScores = [0, 0, 0, 0, 0];
+        g_vetoReasons = [];
         let answeredCount = 0;
 
         for (let i = 1; i <= 25; i++) {
@@ -315,7 +323,16 @@
                     let dimIndex = Math.floor((i - 1) / 5);
                     g_dimScores[dimIndex] += score;
                     answered = true;
-                    if (i >= 21 && i <= 25 && score === 1) g_veto = true;
+                    
+                    // 记录具体的一票否决原因
+                    if (i >= 21 && i <= 25 && score === 1) {
+                        g_veto = true;
+                        if(i === 21) g_vetoReasons.push("毫无异性边界感 (存在劈腿/出轨/聊骚/PC前科)");
+                        if(i === 22) g_vetoReasons.push("触碰法律道德红线 (沾染黄赌毒/或有家暴倾向)");
+                        if(i === 23) g_vetoReasons.push("极度缺乏责任感 (习惯性撒谎/遇事退缩甩锅)");
+                        if(i === 24) g_vetoReasons.push("原生家庭严重拖累 (无底洞吸血/极端妈宝男)");
+                        if(i === 25) g_vetoReasons.push("底层品性恶劣 (极度自私/有虐待弱者倾向)");
+                    }
                     break;
                 }
             }
@@ -383,27 +400,31 @@
         const scoreBox = document.getElementById('scoreBox');
         const scoreValue = document.getElementById('scoreValue');
         const pctText = document.getElementById('percentileText');
+        const radarTitle = document.getElementById('radarTitle');
         
-        let chartScore = g_totalScore; // 用于画正态分布曲线的分数
+        let chartScore = g_totalScore; 
 
-        // 核心修改区：触发红线时，隐藏原有高分，强制显示“清零警告”
         if (g_veto) {
             scoreBox.style.borderColor = "#c0392b";
             scoreBox.style.backgroundColor = "#fff5f5";
             
-            // 把那刺眼的97分换成红字警告！
             scoreValue.innerHTML = "<span style='font-size:32px;'>🚫 底线崩塌·强制清零</span>";
             scoreValue.style.color = "#c0392b";
             
             pctText.innerText = `⚠️ 极度危险：实际有效价值跌破底盘 (不足 1%)`;
             pctText.style.color = "#c0392b";
 
-            // 强制让正态分布图的红点跌到最左侧的谷底 (25分的位置)
+            // 雷达图标题变红警告
+            radarTitle.innerText = "【⚠️ 触发致命红线：五维矩阵已崩塌清零】";
+            radarTitle.style.color = "#c0392b";
+
             chartScore = 25; 
         } else {
-            // 正常未触发底线的情况
             scoreValue.innerText = g_totalScore;
             scoreValue.style.color = "#d35400";
+            radarTitle.innerText = "【个人五维价值雷达透视图】";
+            radarTitle.style.color = "#7f8c8d";
+
             if (g_totalScore >= 75) {
                 pctText.innerText = `🔥 恭喜！他的综合价值击败了全国 ${percentile}% 的男性`;
                 pctText.style.color = "#27ae60";
@@ -421,13 +442,26 @@
     function renderReportText() {
         const report = document.getElementById('reportContent');
         if (g_veto) {
-            report.innerHTML = "<h3>🚨 【高危警报】虚假的高分伪装 / 劣质资产</h3><p><strong>⚠️ 一票否决清零机制：</strong>就算他前面表现得再好（哪怕特别有钱、极懂浪漫），但系统检测到他在【人品与底线】维度中触碰了不可饶恕的红线（出轨/家暴/吸血/极度妈宝）。在这个模型里，**底线=0，则一切皆为0**。这高分不过是裹着糖衣的毒药。</p><p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！他极具迷惑性，但本身就是你生活中最大的风暴。继续耗下去，你的钱财、青春甚至半条命都会被吸干。</p><p><strong>【高维破局建议】：</strong><br>1. 丢掉幻想：屎壳郎改变不了吃屎的本性，你救不了烂人。<br>2. 及时止损：沉没成本不是成本，尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全撤退路线，立马跑，不要回头！</p>";
+            // 将具体原因拼接成列表
+            let reasonsHtml = g_vetoReasons.map(reason => `<li>${reason}</li>`).join('');
+            
+            report.innerHTML = `
+                <h3>🚨 【高危警报】虚假的高分伪装 / 劣质资产</h3>
+                <p><strong>⚠️ 一票否决清零机制：</strong>就算他前面表现得再好（哪怕特别有钱、极懂浪漫），但系统检测到他在【人品与底线】维度中触碰了不可饶恕的红线。在这个底层逻辑模型里，**底线=0，则一切皆为0**。这高分不过是裹着糖衣的毒药。</p>
+                
+                <div class="fatal-warning-box">
+                    <h4>⛔ 系统已锁定以下致命缺陷：</h4>
+                    <ul>${reasonsHtml}</ul>
+                </div>
+
+                <p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！他极具迷惑性，但本身就是你生活中最大的定时炸弹。继续耗下去，你的钱财、青春甚至半条命都会被吸干。</p>
+                <p><strong>【高维破局建议】：</strong><br>1. 丢掉幻想：屎壳郎改变不了吃屎的本性，你救不了烂人。<br>2. 及时止损：沉没成本不是成本，尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全撤退路线，立马跑，不要回头！</p>`;
         } else if (g_totalScore >= 90) {
             report.innerHTML = "<h3>👑 【极品金字塔尖】高质量人生合伙人</h3><p><strong>深度剖析：</strong>天呐姐妹！你简直挖到了婚恋市场上的极品“钻石男”。他的物质底盘极其稳固，情绪价值直接拉满。他心智成熟、内核稳定，跟你不仅是情侣，更是能背靠背打怪升级的顶级战友。这种级别的男性，属于市场上极度稀缺的资源。</p><p><strong>【高维破局建议】：</strong><br>1. 疯狂提供情绪反馈：对这种优质伴侣，不要吝啬你的夸奖，“男人的好是夸出来的”。<br>2. 警惕“恃宠而骄”：双向奔赴才能锁死长久，不要把他当全能提款机。<br>3. 尽早绑定核心利益：千万别犹豫，可以直接进入人生下一阶段（结婚/生子）。</p>";
         } else if (g_totalScore >= 75) {
             report.innerHTML = "<h3>🌟 【优质适配潜力股】靠谱的经济适用男</h3><p><strong>深度剖析：</strong>很不错了！他是一个非常值得托付的优秀对象。虽然可能在某些细节（比如没那么懂浪漫，偶尔有点直男脾气）上不够完美，但他的底层逻辑极其清晰，人品底线完全靠得住。别被网上的“完美霸总”洗脑了，现实中遇到这种踏实肯干、愿意为你付出的男人，已经赢了大部分人。</p><p><strong>【高维破局建议】：</strong><br>1. 聚焦短板调教：看雷达图中偏低的维度，趁他心情好的时候温柔地“立规矩”。<br>2. 利益捆绑：通过共同买房、强制储蓄等行为，进一步加固你们的现实基石。<br>3. 拥抱真实：接纳他是个有血有肉的普通人，好男人是需要女人慢慢调教出来的。</p>";
         } else if (g_totalScore >= 60) {
-            report.innerHTML = "<h3>⚠️ 【风险鸡肋期】内耗重灾区 / 随时准备撤离</h3><p><strong>深度剖析：</strong>这段感情目前处于“食之无味，弃之可惜”的鸡肋状态。他在某个核心维度（如经济能力极差，或情绪极度不稳定）出现了致命短板。在这段关系里，你感觉到自己的能量正在被抽干。他或许不是十恶不赦的坏人，但绝对目前还撑不起一个家的重量。</p><p><strong>【高维破局建议】：</strong><br>1. 停止自我感动式的付出：收回你 80% 的精力，把钱和心思花在自己搞钱变美上。<br>2. 设立强硬底线：明确告诉他哪里让你无法忍受，观察他是敷衍还是真改。<br>3. 积累离开的筹码：随时做好“他烂泥扶不上墙你就换人”的准备，不依附任何人。</p>";
+            report.innerHTML = "<h3>⚠️ 【风险鸡肋期】内耗重灾区 / 随时准备撤离</h3><p><strong>深度剖析：</strong>这段感情目前处于“食之无味，弃之可惜”的鸡肋状态。他在某个核心维度出现了致命短板。在这段关系里，你感觉到自己的能量正在被抽干。他或许不是十恶不赦的坏人，但绝对目前还撑不起一个家的重量。</p><p><strong>【高维破局建议】：</strong><br>1. 停止自我感动式的付出：收回你 80% 的精力，把钱和心思花在自己搞钱变美上。<br>2. 设立强硬底线：明确告诉他哪里让你无法忍受，观察他是敷衍还是真改。<br>3. 积累离开的筹码：随时做好“他烂泥扶不上墙你就换人”的准备，不依附任何人。</p>";
         } else {
             report.innerHTML = "<h3>💀 【高耗损劣质资产】纯粹的消耗型关系</h3><p><strong>深度剖析：</strong>姐妹，你到底在图他什么？图他穷？图他脾气大？图他让你内耗流眼泪？他在经济、情绪、人品上全面溃败！他的雷达图瘪得像一张纸。这段关系的存在，对你来说是一种降维打击，正在疯狂吸食你的能量和青春。</p><p><strong>【高维破局建议】：</strong><br>1. 打消圣母情节：你不是救世主，感动不了一个装睡的自私鬼。<br>2. 理清账目：立刻停止一切经济倒贴行为，不要再为他花一分钱。<br>3. 找闺蜜骂醒自己：别被 PUA 了，你值得更好的人，赶紧跑！</p>";
         }
@@ -507,6 +541,9 @@
         const ctx = document.getElementById('radarChart').getContext('2d');
         if (rChart) rChart.destroy();
 
+        // 核心修改区：如果触发一票否决，雷达图的数据全部变成 0！强制坍塌成一个点！
+        let finalRadarData = g_veto ? [0, 0, 0, 0, 0] : g_dimScores;
+
         let chartColor = g_veto ? 'rgba(231, 76, 60, 0.3)' : 'rgba(241, 196, 15, 0.3)';
         let borderColor = g_veto ? 'rgba(192, 57, 43, 1)' : 'rgba(243, 156, 18, 1)';
 
@@ -516,7 +553,7 @@
                 labels: ['生存底盘(物质)', '情感供给(情绪)', '内核底盘(稳定)', '成长联盟(未来)', '底线与品性'],
                 datasets: [{
                     label: '男性个体五维价值解析',
-                    data: g_dimScores,
+                    data: finalRadarData,
                     backgroundColor: chartColor,
                     borderColor: borderColor,
                     pointBackgroundColor: borderColor,
@@ -537,7 +574,7 @@
                         grid: { color: 'rgba(0, 0, 0, 0.05)' },
                         pointLabels: {
                             font: { size: 12, family: "'PingFang SC', sans-serif", weight: 'bold' },
-                            color: '#34495e'
+                            color: g_veto ? '#c0392b' : '#34495e' // 如果触发底线，连外圈文字都变红警告
                         },
                         ticks: { stepSize: 5, display: false }
                     }
